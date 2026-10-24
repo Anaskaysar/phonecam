@@ -1,0 +1,48 @@
+<!--
+{
+  "slug": "about",
+  "kicker": "About PhoneCam",
+  "short": "About",
+  "title": "About PhoneCam",
+  "h1": "The best camera you own is already in your pocket.",
+  "lede": "PhoneCam turns the phone you already have into the webcam for your laptop. No app on the phone, no account, and the picture goes straight from the phone to your computer.",
+  "description": "Why PhoneCam exists, what it promises, and how it keeps your camera private: no app on the phone, no account, and video that goes straight from your phone to your computer.",
+  "cover": "/guides/img/about.svg",
+  "updated": "2026-10-24"
+}
+-->
+<h2>Why PhoneCam exists</h2>
+<p>Laptop cameras are small, fixed and usually looking up your nose. The usual fix is to buy a webcam. Most people already carry a much better camera, with a bigger sensor, autofocus and a lens that can be put anywhere a $3 stand can hold it.</p>
+<p>The trouble has always been getting that picture to the laptop. Most phone-as-webcam tools ask for an app on the phone and another one on the computer, plus an account. PhoneCam asks for neither on the phone. It runs in Safari or Chrome, so a QR code is all it takes.</p>
+
+<figure class="shot pair">
+  <img src="/guides/img/shots/phone-live.webp" alt="The PhoneCam camera screen on a phone while live: the video fills the screen and a small label reads Live, keep this screen open" width="390" height="844" loading="lazy">
+  <img src="/guides/img/shots/receiver-share.webp" alt="The PhoneCam receiver on a laptop, with a large QR code to scan and three short steps" width="1200" height="760" loading="lazy">
+  <figcaption>The phone runs PhoneCam in its browser. The laptop shows a code to scan.</figcaption>
+</figure>
+
+<h2>What we promise</h2>
+<ul>
+  <li><strong>Nothing to install on the phone.</strong> The camera page is a website. Add it to the home screen if you like.</li>
+  <li><strong>No account.</strong> There is nothing to sign up for and nothing to log in to.</li>
+  <li><strong>Your video stays yours.</strong> It goes from the phone to your computer over an encrypted peer-to-peer connection. PhoneCam’s server only introduces the two devices. Nothing is recorded, and there is no tracking.</li>
+  <li><strong>One phone per code.</strong> A QR code pairs exactly one phone, once. After that, only that phone can connect, and it reconnects without scanning again.</li>
+  <li><strong>Free.</strong> The camera you already own, a cheap stand if you want one, and that is the whole cost.</li>
+</ul>
+
+<h2>Three ways into a meeting</h2>
+<p>Every meeting app is different, so PhoneCam gives you three ways in, and none of them need a webcam:</p>
+<ul>
+  <li><strong>The browser extension</strong> adds a camera called PhoneCam to Google Meet, Teams, Zoom, Discord, Whereby, Jitsi and Webex in Chrome or Edge.</li>
+  <li><strong>Share a tab</strong> works in every meeting app, including the Zoom and Teams desktop apps, with nothing to install.</li>
+  <li><strong>OBS</strong> takes the phone as a browser source, and OBS Virtual Camera hands it to any app on the computer.</li>
+</ul>
+<p>Not sure which one? Start with <a href="/use-phone-as-webcam">use your phone as a webcam</a>.</p>
+
+<h2>How it is built</h2>
+<p>PhoneCam is a web app that you can install on the phone, a small browser extension, and a signalling service on Cloudflare that introduces the phone to the laptop. The phone and the laptop prove to each other that they share a secret from the QR code before any video moves, so a stranger who learns a room cannot see your camera or push video into your call. On networks that block direct connections, the encrypted video can pass through Cloudflare’s relay, which cannot read it. The details are in the <a href="/privacy.html">privacy policy</a>.</p>
+
+<h2>Open source, and listening</h2>
+<p>The code is on <a href="https://github.com/Anaskaysar/phonecam">GitHub</a>. If something does not work with your phone or your meeting app, <a href="https://github.com/Anaskaysar/phonecam/issues">open an issue</a>. If it does work, <a href="/#/rate">a rating</a> helps other people find it.</p>
+
+<p><a class="cta" href="/#/receiver">Open the receiver</a> <a class="cta quiet" href="/guides">Read the guides</a></p>

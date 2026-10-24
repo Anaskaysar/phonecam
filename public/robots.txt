@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /signal/
+
+Sitemap: https://phonecam.app/sitemap.xml

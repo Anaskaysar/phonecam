@@ -27,7 +27,8 @@ async function open(path, viewport) {
   return { page, errors }
 }
 
-const PAGES = ['/#/', '/#/receiver?mode=meeting', '/#/receiver?mode=share', '/#/receiver?mode=obs', '/#/camera', '/#/check', '/#/rate', '/privacy.html']
+const GUIDES = ['/webcam', '/use-phone-as-webcam', '/iphone-as-webcam', '/android-as-webcam', '/meeting-webcam', '/obs-phone-camera', '/blurry-laptop-webcam']
+const PAGES = ['/#/', '/#/receiver?mode=meeting', '/#/receiver?mode=share', '/#/receiver?mode=obs', '/#/camera', '/#/check', '/#/rate', '/privacy.html', '/guides', '/about', ...GUIDES]
 
 for (const size of ['laptop', 'phone']) {
   for (const path of PAGES) {
@@ -50,12 +51,20 @@ test('the home page asks once: one primary button in the hero', async () => {
 
 test('nav links go to the right place and mark the current page', async () => {
   const { page } = await open('/#/check', 'laptop')
-  await page.locator('.site-nav-links').getByRole('link', { name: 'Browser extension' }).click()
+  const menu = page.locator('#nav-use-menu')
+  await page.locator('.nav-drop-toggle').click()
+  await menu.getByRole('link', { name: /Browser extension/ }).click()
   await sleep(500)
   assert.match(page.url(), /#\/receiver\?mode=meeting/)
   assert.equal(await page.locator('.mode.on strong').textContent(), 'Browser meeting')
-  assert.equal(await page.locator('.site-nav-links a[aria-current="page"]').textContent(), 'Browser extension')
-  await page.locator('.site-nav-links').getByRole('link', { name: 'Receiver' }).click()
+  assert.equal(await menu.count(), 0, 'the menu closes after a pick')
+  assert.match(await page.locator('.nav-drop-toggle').getAttribute('class'), /\bon\b/, 'Use PhoneCam is marked current')
+  await page.locator('.nav-drop-toggle').click()
+  assert.equal(await menu.locator('a[aria-current="page"] strong').textContent(), 'Browser extension')
+  await page.keyboard.press('Escape')
+  assert.equal(await menu.count(), 0, 'Escape closes the menu')
+  await page.locator('.nav-drop-toggle').click()
+  await menu.getByRole('link', { name: /^Receiver/ }).click()
   await sleep(300)
   await page.locator('.site-nav-links').getByRole('link', { name: 'How it works' }).click()
   await sleep(900)
@@ -69,25 +78,99 @@ test('the phone menu opens, lists the pages and closes', async () => {
   assert.ok(await page.locator('.site-nav-toggle').isVisible())
   await page.locator('.site-nav-toggle').click()
   assert.ok(await page.locator('#site-nav-menu').isVisible())
-  assert.equal(await page.locator('#site-nav-menu a').count(), 5)
+  assert.equal(await page.locator('#site-nav-menu a').count(), 8, '4 Use PhoneCam links, 3 Learn links and the button')
   await page.keyboard.press('Escape')
   assert.equal(await page.locator('#site-nav-menu').count(), 0)
   await page.context().close()
 })
 
-test('the footer has its columns, version and color picker on every page', async () => {
+test('the footer has its columns and version on every page', async () => {
   for (const path of ['/#/', '/#/receiver', '/#/check', '/#/rate']) {
     const { page } = await open(path, 'laptop')
-    assert.equal(await page.locator('.site-footer .sf-cols h2').count(), 3, path)
+    assert.equal(await page.locator('.site-footer .sf-cols h2').count(), 4, path)
     assert.match(await page.locator('.sf-bottom').textContent(), /Version \d+\.\d+\.\d+/, path)
-    assert.equal(await page.locator('.site-footer .swatch').count(), 5, path)
     await page.context().close()
   }
 })
 
-test('a color choice sticks after reload', async () => {
+test('Guides and About are in the nav, and lead back into the app', async () => {
+  const { page } = await open('/#/check', 'laptop')
+  await page.locator('.site-nav-links').getByRole('link', { name: 'Guides' }).click()
+  await page.waitForURL(/\/guides$/)
+  assert.equal(await page.locator('.site-nav-links a[aria-current="page"]').textContent(), 'Guides')
+  assert.equal(await page.locator('.guide-card').count(), 7, 'every guide is listed')
+  await page.locator('.guide-card').first().click()
+  await page.waitForURL(/\/webcam$/)
+  assert.equal(await page.locator('.crumbs a').first().textContent(), 'Guides', 'a way back to the guides')
+  await page.locator('.site-nav-links').getByRole('link', { name: 'About' }).click()
+  await page.waitForURL(/\/about$/)
+  await page.locator('.nav-drop summary').click()
+  assert.ok(await page.locator('.nav-drop-menu').isVisible(), 'the static pages have the same Use PhoneCam menu')
+  await page.keyboard.press('Escape')
+  assert.ok(!(await page.locator('.nav-drop-menu').isVisible()))
+  await page.locator('.nav-drop summary').click()
+  await page.locator('.nav-drop-menu').getByRole('link', { name: /Browser extension/ }).click()
+  await page.waitForURL(/#\/receiver\?mode=meeting/)
+  await page.context().close()
+})
+
+test('every picture in the guides and About loads', async () => {
+  for (const path of ['/guides', '/about', ...GUIDES]) {
+    const { page } = await open(path, 'laptop')
+    await page.evaluate(async () => {
+      for (const img of document.images) { img.loading = 'eager'; if (!img.complete) await new Promise((done) => { img.onload = img.onerror = done }) }
+    })
+    const broken = await page.evaluate(() => [...document.images].filter((img) => !img.naturalWidth).map((img) => img.src))
+    assert.deepEqual(broken, [], path)
+    assert.ok(await page.locator('main img, article img').count() > 0, `${path} has pictures`)
+    const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content')
+    assert.equal((await page.request.get(BASE + new URL(ogImage).pathname)).status(), 200, `${path} social image`)
+    await page.context().close()
+  }
+})
+
+test('the sitemap lists the guides and About', async () => {
+  const { page } = await open('/sitemap.xml', 'laptop')
+  const xml = await (await page.request.get(`${BASE}/sitemap.xml`)).text()
+  for (const path of ['/guides', '/about', ...GUIDES]) assert.ok(xml.includes(`https://phonecam.app${path}<`), path)
+  await page.context().close()
+})
+
+test('the home page wears a new color edition each visit, and keeps it on refresh', async () => {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 860 } })
+  const editions = []
+  for (let visit = 0; visit < 3; visit += 1) {
+    // A new tab has a fresh session, which counts as a new visit.
+    const page = await context.newPage()
+    await page.goto(`${BASE}/#/`)
+    await sleep(500)
+    editions.push(await page.locator('.lp').getAttribute('data-edition'))
+    if (visit === 2) {
+      await page.reload()
+      await sleep(500)
+      assert.equal(await page.locator('.lp').getAttribute('data-edition'), editions[2], 'a refresh keeps the edition')
+    }
+    await page.close()
+  }
+  assert.equal(new Set(editions).size, 3, `three visits, three editions: ${editions.join(', ')}`)
+  await context.close()
+})
+
+test('black and white sticks until you switch color back on', async () => {
   const { page } = await open('/#/', 'laptop')
-  await page.locator('.site-footer').getByRole('radio', { name: 'Violet' }).click()
+  await page.getByRole('button', { name: 'Black & white' }).click()
+  await page.reload()
+  await sleep(500)
+  assert.equal(await page.locator('.lp').getAttribute('data-color-mode'), 'frozen')
+  await page.getByRole('button', { name: 'Use color' }).click()
+  assert.equal(await page.locator('.lp').getAttribute('data-color-mode'), 'edition')
+  await page.context().close()
+})
+
+test('the accent color picked on the phone sticks after reload', async () => {
+  const { page } = await open('/#/camera', 'phone')
+  await page.getByRole('button', { name: 'Settings' }).first().click()
+  await page.getByRole('radio', { name: 'Violet' }).click()
   await page.reload()
   await sleep(500)
   assert.equal((await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent'))).trim(), '#b8a3ff')

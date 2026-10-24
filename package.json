@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/build-extension.mjs",
-    "build:pages": "vite build --base /phonecam/ && node scripts/build-extension.mjs",
+    "build": "vite build && node scripts/build-pages.mjs && node scripts/build-extension.mjs",
+    "build:pages": "vite build --base /phonecam/ && node scripts/build-pages.mjs && node scripts/build-extension.mjs",
     "preview": "vite preview",
     "deploy": "wrangler deploy",
     "build:extension": "node scripts/build-extension.mjs",
     "test": "node --test tests/unit/*.test.mjs",
     "test:e2e": "node tests/e2e/run.mjs",
-    "test:all": "npm test && npm run test:e2e"
+    "test:all": "npm test && npm run test:e2e",
+    "pages": "node scripts/build-pages.mjs"
   },
   "dependencies": {
     "peerjs": "^1.5.5",

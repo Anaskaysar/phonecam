@@ -20,6 +20,40 @@ function lanAddress() {
   return wifi[0] || other.find((address) => address.startsWith('192.168.') || address.startsWith('10.')) || other[0] || ''
 }
 
+// Guides, /guides and /about are static pages built from content/ by scripts/pages.mjs.
+// In dev they are rendered on each request, so edits show up on refresh.
+function guidePagesPlugin() {
+  return {
+    name: 'phonecam-guide-pages',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const pathname = (req.url || '').split('?')[0].replace(/\/$/, '') || '/'
+        const { renderAll, pagePaths } = await server.ssrLoadModule('/scripts/pages.mjs')
+        if (pathname === '/site.css') {
+          // Served straight from disk: Vite's list of public files can miss a file added while it runs.
+          res.setHeader('content-type', 'text/css; charset=utf-8')
+          return res.end(fs.readFileSync(new URL('./public/site.css', import.meta.url)))
+        }
+        const name = pathname.slice(1)
+        const file = name === 'sitemap.xml' ? 'sitemap.xml' : pagePaths().includes(name) ? `${name}/index.html` : null
+        if (!file) return next()
+        res.setHeader('content-type', file.endsWith('.xml') ? 'application/xml' : 'text/html; charset=utf-8')
+        res.end(renderAll()[file])
+      })
+    },
+    configurePreviewServer(server) {
+      // vite preview serves dist/, where the build already wrote /<page>/index.html.
+      server.middlewares.use((req, _res, next) => {
+        const pathname = (req.url || '').split('?')[0]
+        if (/^\/[a-z0-9-]+\/?$/.test(pathname) && fs.existsSync(new URL(`./dist${pathname.replace(/\/$/, '')}/index.html`, import.meta.url))) {
+          req.url = `${pathname.replace(/\/$/, '')}/index.html`
+        }
+        next()
+      })
+    }
+  }
+}
+
 function phoneOriginPlugin() {
   return {
     name: 'phonecam-phone-origin',
@@ -50,6 +84,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    guidePagesPlugin(),
     phoneOriginPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -72,7 +107,12 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: 'index.html',
-        globPatterns: ['**/*.{js,css,html,png,svg,ico,webmanifest}']
+        // The app only lives at /. Guides, /guides, /about and privacy.html are real pages
+        // and must never be swapped for the app shell.
+        navigateFallbackDenylist: [/^\/(?!index\.html$)./],
+        globPatterns: ['**/*.{js,css,html,png,svg,ico,webmanifest}'],
+        // The guides are ordinary web pages: don't download their pictures into every phone's app cache.
+        globIgnores: ['guides/**', 'site.css']
       },
       devOptions: {
         enabled: false

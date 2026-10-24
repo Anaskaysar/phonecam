@@ -1,8 +1,27 @@
-# PhoneCam
+<p align="center">
+  <a href="https://phonecam.app"><img src="doc/readme/hero.webp" alt="PhoneCam: a laptop showing the PhoneCam receiver with a QR code, and a phone ready to start streaming" width="100%"></a>
+</p>
 
-Use the phone you already own as a webcam on a laptop, with **no app on the phone**. The phone runs PhoneCam in Safari or Chrome, and the picture goes straight from the phone to the laptop over WebRTC. Live at **https://phonecam.app**.
+<h1 align="center">PhoneCam</h1>
 
-On the laptop, pick how the meeting gets the picture:
+<p align="center">
+  <strong>Your phone is the webcam.</strong> No app on the phone, no account, free.<br>
+  <a href="https://phonecam.app">phonecam.app</a> · <a href="https://phonecam.app/guides">Guides</a> · <a href="https://phonecam.app/about">About</a> · <a href="https://phonecam.app/privacy.html">Privacy</a>
+</p>
+
+<p align="center">
+  <img alt="Version 1.0.0" src="https://img.shields.io/badge/version-1.0.0-dff25a?labelColor=161a04">
+  <img alt="Works on iPhone and Android" src="https://img.shields.io/badge/phone-iPhone%20%C2%B7%20Android-dff25a?labelColor=161a04">
+  <img alt="Meet, Teams, Zoom, OBS" src="https://img.shields.io/badge/works%20with-Meet%20%C2%B7%20Teams%20%C2%B7%20Zoom%20%C2%B7%20OBS-dff25a?labelColor=161a04">
+</p>
+
+PhoneCam turns the phone you already own into the webcam for your laptop. The phone runs PhoneCam in Safari or Chrome, you scan a QR code, tap **Start streaming**, and the picture goes straight from the phone to the laptop over an encrypted WebRTC connection. Nothing is recorded, and the server only introduces the two devices.
+
+## How it looks
+
+### Three ways into a meeting
+
+![The PhoneCam receiver in its three modes: Browser extension, Share a tab and OBS](doc/readme/modes.webp)
 
 | Way | Install on the laptop | Works in |
 | --- | --- | --- |
@@ -10,7 +29,25 @@ On the laptop, pick how the meeting gets the picture:
 | **Share a tab** | Nothing | Every meeting app, as a screen share |
 | **OBS** | OBS Studio | Every app, through OBS Virtual Camera |
 
-The roadmap, including a native desktop helper and its costs, is in [doc/feature_plan.md](doc/feature_plan.md). Privacy is at [phonecam.app/privacy.html](https://phonecam.app/privacy.html).
+### On the phone
+
+![PhoneCam on a phone: the home page, the camera before streaming, live with the controls hidden, and live with the controls showing](doc/readme/phone.webp)
+
+The whole screen is picture while you're live. Tap it to bring the controls back: flip camera, Stop, and settings.
+
+### The browser extension
+
+![The receiver's Browser meeting mode next to the PhoneCam extension popup with its QR code](doc/readme/extension.webp)
+
+Scan the popup's code once. After that, PhoneCam is in the meeting's camera list, and the receiver page can stay closed.
+
+### Guides
+
+![The PhoneCam guides page and a guide about Zoom, Google Meet and Teams](doc/readme/guides.webp)
+
+Short guides with covers and real screenshots, written for search: [skip buying a webcam](https://phonecam.app/webcam), [iPhone](https://phonecam.app/iphone-as-webcam), [Android](https://phonecam.app/android-as-webcam), [Zoom, Meet and Teams](https://phonecam.app/meeting-webcam), [OBS](https://phonecam.app/obs-phone-camera) and more.
+
+The roadmap, including a native desktop helper and its costs, is in [doc/feature_plan.md](doc/feature_plan.md).
 
 ## Pages
 
@@ -20,6 +57,8 @@ The roadmap, including a native desktop helper and its costs, is in [doc/feature
 | `#/camera` | Phone | The camera. A QR code opens this page and pairs the phone |
 | `#/receiver` | Laptop | Pairing QR code, and the three ways above |
 | `#/check` | Laptop | Preview the PhoneCam camera the extension adds |
+| `#/rate` | Anyone | Leave a rating |
+| `/guides`, `/<guide>`, `/about` | Anyone | Static pages for search, built from `content/` |
 
 Old `camera.html` and `receiver.html` links still open these pages.
 
@@ -63,7 +102,23 @@ npm run deploy
 
 `npm run deploy` publishes `dist/` with Wrangler. `wrangler.toml` serves it as a Worker with static assets at `phonecam.app` and `www.phonecam.app`.
 
-`npm run build:pages` is the same build with a `/phonecam/` base path.
+`npm run build:pages` is the same build with a `/phonecam/` base path. The guides use root paths, so they only work on a site served at `/`.
+
+## Guides and About
+
+The guides and About are plain HTML pages, so search engines read them without running the app. Each one is a file with a short JSON header (title, description, kicker, order, updated date):
+
+- `content/guides/<slug>.html` becomes `phonecam.app/<slug>`
+- `content/pages/about.html` becomes `phonecam.app/about`
+
+`scripts/pages.mjs` wraps them in the site's nav and footer and adds the guides index at `/guides`, `sitemap.xml`, canonical links, Open Graph and Twitter cards, and JSON-LD (Article, Breadcrumb, FAQ, About). `npm run build` writes them into `dist/`, and `npm run dev` renders them on each request, so edits show on refresh.
+
+Pictures live in `public/guides/img/`:
+
+- Covers and diagrams: `python3 scripts/guide-art.py` draws the SVGs, then `node scripts/guide-art-png.mjs` renders the PNG copies used for link previews.
+- Screenshots of the app are in `shots/` as WebP. Retake them when a screen changes.
+
+The README pictures are in `doc/readme/`.
 
 ### Build options
 
@@ -163,7 +218,9 @@ Only rows with `public_ok = 1` and `approved = 1` appear on the site, within 5 m
 
 ## Color
 
-People can pick an accent color (Lime, Sky, Coral, Violet, Mint) on the home page, the receiver and in the camera settings. It is saved in that browser only. The colors are in `src/lib/theme.js`, and `index.html` applies the saved one before the page draws.
+The home page wears a new color edition on each visit and keeps it on refresh. **Black & white** in the nav turns that off until you switch color back on. The editions are in `src/lib/color-edition.js`.
+
+On the phone, the camera settings have an accent color (Lime, Sky, Coral, Violet, Mint), saved in that browser only. The colors are in `src/lib/theme.js`, and `index.html` applies the saved one before the page draws.
 
 ## Receiver options
 

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif">
+<defs>
+  <radialGradient id="glow" cx="0.8" cy="0.1" r="0.75">
+    <stop offset="0" stop-color="#dff25a" stop-opacity="0.22"/>
+    <stop offset="0.45" stop-color="#dff25a" stop-opacity="0.05"/>
+    <stop offset="1" stop-color="#dff25a" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3a3046"/><stop offset="0.7" stop-color="#4f4150"/><stop offset="0.7" stop-color="#2a2220"/><stop offset="1" stop-color="#231c1a"/>
+  </linearGradient>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="blur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="7"/></filter>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.55"/></filter>
+  <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.05"/></pattern>
+  <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#dff25a"/></marker>
+</defs>
+<rect width="1200" height="630" fill="#0d1016"/>
+<rect width="1200" height="630" fill="url(#dots)"/>
+<rect width="1200" height="630" fill="url(#glow)"/>
+<text x="300" y="70" text-anchor="middle" font-size="26" font-weight="750" fill="#f4f6f8">Laptop camera</text>
+<text x="900" y="70" text-anchor="middle" font-size="26" font-weight="750" fill="#f4f6f8">Phone on a stand</text>
+<line x1="600" y1="40" x2="600" y2="590" stroke="#2c3240" stroke-width="2" stroke-dasharray="6 10"/>
+<circle cx="170" cy="260" r="46" fill="#2a3142"/><path d="M100 410 Q170 300 240 410" fill="#2a3142"/>
+<path d="M260 470 L470 470 L440 330 L470 330" stroke="#5d6b7e" stroke-width="10" fill="none" stroke-linejoin="round"/>
+<circle cx="470" cy="330" r="9" fill="#ff4b63"/>
+<path d="M462 334 L222 252" stroke="#ff4b63" stroke-width="4" stroke-dasharray="3 10" stroke-linecap="round"/>
+<g><rect x="320" y="520" width="180.0" height="36.0" rx="18.0" fill="#151922" stroke="#2c3240"/><text x="334.4" y="544.5" font-size="18" font-weight="700" fill="#f4f6f8">Looks up at you</text></g>
+<circle cx="770" cy="260" r="46" fill="#2a3142"/><path d="M700 410 Q770 300 840 410" fill="#2a3142"/>
+<g stroke="#5d6b7e" stroke-width="7" stroke-linecap="round" fill="none">
+  <path d="M1010 360 L1010 415.0"/>
+  <path d="M1010 410.0 L968.0 465.0"/>
+  <path d="M1010 410.0 L1052.0 465.0"/>
+  <path d="M1010 410.0 L1010 468.0"/>
+</g>
+<rect x="974.0" y="348" width="72.0" height="16" rx="8" fill="#5d6b7e"/>
+<rect x="990" y="200" width="40" height="150" rx="8" fill="#1d222c" stroke="#3a4150" stroke-width="3"/>
+<circle cx="1010" cy="214" r="6" fill="#dff25a"/>
+<path d="M1000 216 L822 254" stroke="#dff25a" stroke-width="4" stroke-dasharray="3 10" stroke-linecap="round"/>
+<g><rect x="850" y="520" width="119.5" height="36.0" rx="18.0" fill="#dff25a" stroke="none"/><text x="864.4" y="544.5" font-size="18" font-weight="700" fill="#161a04">Eye level</text></g>
+</svg>

@@ -39,6 +39,7 @@ const testEnv = {
 console.log('\n▸ Building the test copy into .test-build/')
 fs.rmSync(out, { recursive: true, force: true })
 run(bin('vite'), ['build', '--outDir', '.test-build/site', '--emptyOutDir', '--logLevel', 'warn'], testEnv)
+run(process.execPath, ['scripts/build-pages.mjs', '.test-build/site'], testEnv)
 run(process.execPath, ['scripts/build-extension.mjs'], { ...testEnv, PHONECAM_EXT_OUT: '.test-build/extension' })
 // Test-only pages served by the local Worker: an attacker page that speaks PeerJS directly.
 fs.copyFileSync(path.join(root, 'node_modules/peerjs/dist/peerjs.min.js'), path.join(out, 'site/peerjs.min.js'))

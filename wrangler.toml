@@ -13,6 +13,9 @@ routes = [
 [assets]
 directory = "./dist"
 binding = "ASSETS"
+# /webcam serves the built webcam/index.html, and /webcam/ redirects to /webcam.
+html_handling = "drop-trailing-slash"
+not_found_handling = "none"
 
 # Signalling server: one Durable Object per room (free plan uses SQLite-backed objects).
 [[durable_objects.bindings]]

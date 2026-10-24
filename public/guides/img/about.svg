@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif">
+<defs>
+  <radialGradient id="glow" cx="0.5" cy="0.25" r="0.75">
+    <stop offset="0" stop-color="#dff25a" stop-opacity="0.22"/>
+    <stop offset="0.45" stop-color="#dff25a" stop-opacity="0.05"/>
+    <stop offset="1" stop-color="#dff25a" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3a3046"/><stop offset="0.7" stop-color="#4f4150"/><stop offset="0.7" stop-color="#2a2220"/><stop offset="1" stop-color="#231c1a"/>
+  </linearGradient>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="blur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="7"/></filter>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.55"/></filter>
+  <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.05"/></pattern>
+  <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#dff25a"/></marker>
+</defs>
+<rect width="1200" height="630" fill="#0d1016"/>
+<rect width="1200" height="630" fill="url(#dots)"/>
+<rect width="1200" height="630" fill="url(#glow)"/>
+<g filter="url(#shadow)">
+  <rect x="140" y="110" width="190" height="389.5" rx="30.4" fill="#1d222c" stroke="#2c3240" stroke-width="2"/>
+  <clipPath id="clipa"><rect x="148.55" y="118.55" width="172.9" height="372.3999999999999" rx="23.712000000000003"/></clipPath>
+<g clip-path="url(#clipa)">
+  <rect x="148.55" y="118.55" width="172.9" height="372.3999999999999" fill="url(#room)"/>
+  <g filter="url(#soft)"><circle cx="186.6" cy="222.8" r="27.7" fill="#ffc478" fill-opacity="0.55"/><circle cx="266.1" cy="193.0" r="22.5" fill="#aac8ff" fill-opacity="0.55"/><circle cx="243.6" cy="323.4" r="31.1" fill="#ffaa5a" fill-opacity="0.55"/><circle cx="297.2" cy="349.4" r="19.0" fill="#96d28c" fill-opacity="0.55"/><circle cx="165.8" cy="342.0" r="17.3" fill="#ffc478" fill-opacity="0.55"/></g>
+  <g>
+    <rect x="169.3" y="327.1" width="41.5" height="59.6" rx="3.5" fill="#e2d6c4"/>
+    <rect x="172.8" y="304.7" width="34.6" height="29.8" rx="3.5" fill="#f5ecdf"/>
+    <ellipse cx="286.9" cy="312.2" rx="13.8" ry="63.3" fill="#3b7444"/>
+    <rect x="283.4" y="342.0" width="6.9" height="37.2" fill="#7a503a"/>
+  </g>
+</g>
+  <rect x="204.6" y="128.1" width="60.8" height="14.2" rx="7.6" fill="#05060a"/>
+  <g><rect x="176.1" y="156.6" width="117.8" height="22.8" rx="11.4" fill="#0c0e12" fill-opacity="0.72"/>
+<circle cx="191.3" cy="167.9" r="4.2" fill="#ff4b63"/>
+<text x="200.8" y="172.3" font-size="11.8" font-weight="650" fill="#f4f6f8">Live on your laptop</text></g>
+</g>
+<path d="M360 320 Q400.0 320.0 440 320" stroke="#dff25a" stroke-width="4" stroke-dasharray="2 12" stroke-linecap="round" fill="none" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)"><path d="M600 150 L740 205 L740 330 C740 420 670 475 600 500 C530 475 460 420 460 330 L460 205 Z" fill="#151922" stroke="#dff25a" stroke-width="4"/>
+<path d="M545 330 l38 38 l78 -86" stroke="#dff25a" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+<path d="M760 320 Q800.0 320.0 840 320" stroke="#dff25a" stroke-width="4" stroke-dasharray="2 12" stroke-linecap="round" fill="none" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)">
+  <rect x="860" y="220" width="260" height="161.2" rx="7.8" fill="#1a1e27" stroke="#2c3240" stroke-width="2"/>
+  <rect x="867.8" y="230.92" width="244.4" height="142.48" fill="#0f1218"/><clipPath id="clipm867230"><rect x="872.688" y="235.808" width="156.416" height="132.70399999999998" rx="3.666"/></clipPath>
+<g clip-path="url(#clipm867230)">
+  <rect x="872.688" y="235.808" width="156.416" height="132.70399999999998" fill="url(#room)"/>
+  <g filter="url(#soft)"><circle cx="907.1" cy="273.0" r="21.2" fill="#ffc478" fill-opacity="0.55"/><circle cx="979.1" cy="262.3" r="17.3" fill="#aac8ff" fill-opacity="0.55"/><circle cx="958.7" cy="308.8" r="23.9" fill="#ffaa5a" fill-opacity="0.55"/><circle cx="1007.2" cy="318.1" r="14.6" fill="#96d28c" fill-opacity="0.55"/><circle cx="888.3" cy="315.4" r="13.3" fill="#ffc478" fill-opacity="0.55"/></g>
+  <g>
+    <rect x="891.5" y="310.1" width="37.5" height="21.2" rx="2.7" fill="#e2d6c4"/>
+    <rect x="894.6" y="302.2" width="31.3" height="10.6" rx="2.7" fill="#f5ecdf"/>
+    <ellipse cx="997.8" cy="304.8" rx="12.5" ry="22.6" fill="#3b7444"/>
+    <rect x="994.7" y="315.4" width="6.3" height="13.3" fill="#7a503a"/>
+  </g>
+</g><rect x="877.5759999999999" y="355.80319999999995" width="55.1" height="10.2" rx="5.1" fill="#0c0e12" fill-opacity="0.78"/>
+<circle cx="882.7" cy="360.9" r="1.5" fill="#ff4b63"/>
+<text x="885.9" y="362.8" font-size="5.3768" font-weight="650" fill="#f4f6f8">You · PhoneCam</text><rect x="1034.0" y="235.8" width="73.3" height="63.9" rx="3.7" fill="#1a1f2b"/><circle cx="1070.7" cy="267.8" r="12.8" fill="#2a3142"/><text x="1070.7" y="272.2" text-anchor="middle" font-size="10.9" font-weight="700" fill="#a7b0bd">AK</text><rect x="1034.0" y="304.6" width="73.3" height="63.9" rx="3.7" fill="#1a1f2b"/><circle cx="1070.7" cy="336.6" r="12.8" fill="#2a3142"/><text x="1070.7" y="341.0" text-anchor="middle" font-size="10.9" font-weight="700" fill="#a7b0bd">JS</text>
+  <circle cx="990.0" cy="225.6" r="1.6" fill="#3a4150"/>
+  <path d="M841.8 385.2 L1138.2 385.2 L1120.0 394.2 L860.0 394.2 Z" fill="#2a303c"/>
+</g>
+<g><rect x="470" y="535" width="442.1" height="36.0" rx="18.0" fill="#151922" stroke="#2c3240"/><text x="484.4" y="559.5" font-size="18" font-weight="700" fill="#f4f6f8">Straight from your phone to your computer</text></g>
+</svg>

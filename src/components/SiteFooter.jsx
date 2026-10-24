@@ -28,6 +28,15 @@ export default function SiteFooter() {
             <FooterLink to="/check">Check the extension</FooterLink>
           </div>
           <div>
+            <h2>Guides</h2>
+            <a href="/webcam">Skip buying a webcam</a>
+            <a href="/use-phone-as-webcam">Phone as a webcam</a>
+            <a href="/iphone-as-webcam">iPhone</a>
+            <a href="/android-as-webcam">Android</a>
+            <a href="/meeting-webcam">Zoom, Meet and Teams</a>
+            <a href="/guides">All guides →</a>
+          </div>
+          <div>
             <h2>Help</h2>
             <FooterLink to="/?section=how">How it works</FooterLink>
             <FooterLink to="/?section=faq">Questions</FooterLink>
@@ -36,7 +45,8 @@ export default function SiteFooter() {
           </div>
           <div>
             <h2>About</h2>
-            <a href="privacy.html">Privacy</a>
+            <a href="/about">About PhoneCam</a>
+            <a href="/privacy.html">Privacy</a>
             <a href={REPO}>Source on GitHub</a>
           </div>
         </nav>

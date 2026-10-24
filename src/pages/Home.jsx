@@ -105,7 +105,18 @@ const FEATURES = [
   { icon: icon.heart, title: 'Free, no account', body: 'No sign-up, no subscription, no tracking. Nothing is recorded.' }
 ]
 
+const GUIDES = [
+  { href: '/webcam', title: 'About to buy a webcam?', body: 'A phone and a stand of about $3 beat most webcams under $100.' },
+  { href: '/blurry-laptop-webcam', title: 'Laptop camera looks soft', body: 'The camera in the lid is the weak one. The phone in your pocket is not.' },
+  { href: '/use-phone-as-webcam', title: 'Use your phone as a webcam', body: 'Scan a code, tap Start, and pick PhoneCam. No app on the phone.' },
+  { href: '/iphone-as-webcam', title: 'iPhone as a webcam', body: 'Opens in Safari. Keep the screen on. Nothing from the App Store.' },
+  { href: '/android-as-webcam', title: 'Android as a webcam', body: 'Opens in Chrome. Nothing to install from the Play Store.' },
+  { href: '/meeting-webcam', title: 'Zoom, Meet and Teams', body: 'A camera called PhoneCam in the browser, or share a tab in the desktop apps.' },
+  { href: '/obs-phone-camera', title: 'Phone camera in OBS', body: 'A browser source, then Virtual Camera for every other app.' }
+]
+
 const FAQ = [
+  { q: 'Should I buy a webcam?', a: 'Most people don’t need to. A phone on a cheap stand is sharper than a basic webcam, and PhoneCam sends it to the laptop for free. A real webcam is only simpler if you want one cable and no phone battery to watch.' },
   { q: 'Do the phone and laptop need the same Wi-Fi?', a: 'Same Wi-Fi is the most reliable. Different networks often work too, but some, like mobile data or strict office Wi-Fi, can block a direct connection.' },
   { q: 'Does it work on iPhone?', a: 'Yes. Open PhoneCam in Safari and keep the screen on while you stream. iOS pauses the camera if you switch to another app.' },
   { q: 'Which option should I pick?', a: 'Use the extension for meetings in Chrome or Edge. Use Share a tab for desktop apps when you can’t install anything. Use OBS if you already stream with it.' }
@@ -267,6 +278,20 @@ export default function Home() {
               <h3>{feature.title}</h3>
               <p>{feature.body}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="lp-section" aria-labelledby="guides">
+        <p className="lp-label">If you were looking for a camera</p>
+        <h2 id="guides" className="lp-title anchor">You may not need a new webcam.</h2>
+        <div className="lp-grid lp-grid-2 lp-guides">
+          {GUIDES.map((guide) => (
+            <a className="lp-cell" key={guide.href} href={guide.href}>
+              <h3>{guide.title}</h3>
+              <p>{guide.body}</p>
+              <span className="lp-more">Read this →</span>
+            </a>
           ))}
         </div>
       </section>
