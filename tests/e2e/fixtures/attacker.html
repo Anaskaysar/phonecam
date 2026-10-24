@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Attacker</title>
+<!-- Test-only page. Plays someone who knows a room id but not its key. -->
+<script src="peerjs.min.js"></script>
+<script>
+  const port = Number(location.port)
+  const options = { host: location.hostname, port, path: '/signal/', secure: false, debug: 0 }
+  const forged = 'A'.repeat(43)
+
+  // A phone without the key: answers the laptop's hello with a made-up proof,
+  // then tries to call with its own video anyway.
+  window.intrude = (roomId) => new Promise((resolve) => {
+    const log = []
+    const peer = new Peer(`phonecam-v2-${roomId}-paaaaaaaa`, options)
+    peer.on('error', (error) => log.push(`error:${error.type}`))
+    peer.on('open', () => {
+      const channel = peer.connect(`phonecam-v2-${roomId}`, { serialization: 'json' })
+      channel.on('data', (message) => {
+        log.push(`data:${message.t}`)
+        if (message.t === 'hello') channel.send({ t: 'auth', n: 'x'.repeat(22), p: forged })
+      })
+      channel.on('close', () => log.push('data-closed'))
+      setTimeout(() => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 320
+        canvas.height = 240
+        const ctx = canvas.getContext('2d')
+        setInterval(() => { ctx.fillStyle = 'magenta'; ctx.fillRect(0, 0, 320, 240) }, 50)
+        const call = peer.call(`phonecam-v2-${roomId}`, canvas.captureStream(15))
+        call.on('stream', () => log.push('got-answer-stream'))
+        call.on('close', () => log.push('call-closed'))
+        setTimeout(() => resolve(log), 5000)
+      }, 2500)
+    })
+  })
+
+  // Someone who grabs the laptop's room before the laptop opens it.
+  window.squat = (roomId) => new Promise((resolve) => {
+    const log = []
+    window.squatLog = log
+    const peer = new Peer(`phonecam-v2-${roomId}`, options)
+    peer.on('error', (error) => log.push(`error:${error.type}`))
+    peer.on('open', () => { log.push('squatting'); resolve('started') })
+    peer.on('connection', (channel) => {
+      channel.on('open', () => channel.send({ t: 'hello', v: 2, n: 's'.repeat(22) }))
+      channel.on('data', (message) => {
+        log.push(`data:${message.t}`)
+        if (message.t === 'auth') channel.send({ t: 'ok', p: forged })
+      })
+    })
+    peer.on('call', (call) => { log.push('PHONE-CALLED-SQUATTER'); call.answer() })
+  })
+</script>

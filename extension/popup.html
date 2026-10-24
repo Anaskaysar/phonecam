@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PhoneCam</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="9" fill="#dff25a" />
+      <circle cx="16" cy="16" r="6.5" fill="#161a04" />
+      <circle cx="23.5" cy="9.5" r="1.7" fill="#161a04" />
+    </svg>
+    <strong>PhoneCam</strong>
+  </header>
+
+  <p id="status" class="status-line" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="status-text">Not in a meeting yet</span></p>
+
+  <section id="pair" hidden>
+    <div id="qr" class="qr" aria-label="QR code for your phone"></div>
+    <ol>
+      <li>Scan the code with your phone’s camera and tap <b>Start streaming</b>. The code works once, for one phone.</li>
+      <li>In Meet, Teams or Zoom on the web, choose <b>PhoneCam</b> as your camera.</li>
+    </ol>
+    <div class="actions">
+      <button id="copy" type="button" class="primary">Copy phone link</button>
+      <button id="new" type="button">New code</button>
+    </div>
+  </section>
+
+  <section id="paired" hidden>
+    <p class="paired"><span aria-hidden="true">✓</span> Paired with your phone</p>
+    <ol id="paired-steps">
+      <li>On your phone, open PhoneCam and tap <b>Start streaming</b>.</li>
+      <li>In Meet, Teams or Zoom on the web, choose <b>PhoneCam</b> as your camera.</li>
+    </ol>
+    <p class="fine">Only your paired phone can connect to this browser.</p>
+    <div class="actions">
+      <button id="repair" type="button">Pair a different phone</button>
+    </div>
+  </section>
+
+  <p id="footnote" class="fine">Nothing to install on the phone. The picture goes straight from the phone to this computer.</p>
+  <script src="popup.js"></script>
+</body>
+</html>

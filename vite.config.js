@@ -43,12 +43,17 @@ function phoneOriginPlugin() {
 }
 
 export default defineConfig({
+  define: {
+    __PHONECAM_PEER__: process.env.PHONECAM_PEER_SERVER || 'null',
+    __PHONECAM_API__: JSON.stringify(process.env.PHONECAM_API || ''),
+    __APP_VERSION__: JSON.stringify(JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version)
+  },
   plugins: [
     react(),
     phoneOriginPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['icons/favicon-32.png', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png'],
       manifest: {
         name: 'PhoneCam',
         short_name: 'PhoneCam',
@@ -62,7 +67,7 @@ export default defineConfig({
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+          { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       },
       workbox: {

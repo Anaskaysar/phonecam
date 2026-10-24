@@ -1,0 +1,21 @@
+# Local test copy of the PhoneCam Worker, used by tests/e2e/run.mjs.
+name = "phonecam-test"
+main = "../../worker/index.js"
+compatibility_date = "2024-09-23"
+
+[assets]
+directory = "../../.test-build/site"
+binding = "ASSETS"
+
+[[durable_objects.bindings]]
+name = "SIGNAL"
+class_name = "SignalRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SignalRoom"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "phonecam"
+database_id = "00000000-0000-0000-0000-000000000000"

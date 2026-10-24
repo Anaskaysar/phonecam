@@ -9,7 +9,8 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="PhoneCam" />
-  <link rel="icon" href="%BASE_URL%icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="%BASE_URL%icons/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="%BASE_URL%icons/icon-192.png" />
   <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-180.png" />
   <title>PhoneCam</title>
   <script>
@@ -18,6 +19,14 @@
       if (standalone) document.documentElement.classList.add('standalone')
       var hash = location.hash
       if (standalone && (!hash || hash === '#' || hash === '#/')) location.replace('#/camera')
+      var themes = { sky: ['#7cc4ff', '#04213b'], coral: ['#ff8f6e', '#2b0c03'], violet: ['#b8a3ff', '#170b38'], mint: ['#6fe3b4', '#03261a'] }
+      try {
+        var picked = themes[localStorage.getItem('pc.theme')]
+        if (picked) {
+          document.documentElement.style.setProperty('--accent', picked[0])
+          document.documentElement.style.setProperty('--accent-ink', picked[1])
+        }
+      } catch (e) {}
     })()
   </script>
 </head>

@@ -1,4 +1,5 @@
 name = "phonecam"
+main = "worker/index.js"
 compatibility_date = "2024-09-23"
 workers_dev = true
 
@@ -7,6 +8,32 @@ routes = [
   { pattern = "www.phonecam.app", custom_domain = true }
 ]
 
+# The site uses #/ links, so every page is index.html or a real file.
+# Requests for files that don't exist go to worker/index.js (signalling and /api).
 [assets]
 directory = "./dist"
-not_found_handling = "single-page-application"
+binding = "ASSETS"
+
+# Signalling server: one Durable Object per room (free plan uses SQLite-backed objects).
+[[durable_objects.bindings]]
+name = "SIGNAL"
+class_name = "SignalRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SignalRoom"]
+
+# TURN relay (optional). Create a TURN key in the Cloudflare dashboard
+# (Realtime > TURN Server), then:
+#   npx wrangler secret put TURN_KEY_ID
+#   npx wrangler secret put TURN_KEY_API_TOKEN
+
+# Ratings database. To turn ratings on:
+#   1. npx wrangler d1 create phonecam
+#   2. paste the database_id it prints below and remove the # signs
+#   3. npx wrangler d1 execute phonecam --remote --file=worker/schema.sql
+# Until then the site simply hides the ratings section.
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "phonecam"
+# database_id = "PASTE-ID-HERE"

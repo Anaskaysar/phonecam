@@ -4,3 +4,6 @@ dist
 *.local
 .vite
 .phone-origin
+dist-extension
+store/*.zip
+.test-build

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy · PhoneCam</title>
+  <meta name="description" content="How PhoneCam and the PhoneCam browser extension handle your camera, microphone and data.">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <style>
+    :root { color-scheme: dark; --bg: #0b0d11; --raise: #151922; --ink: #f4f6f8; --muted: #a7b0bd; --line: rgba(255,255,255,.12); --accent: #dff25a; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+    a { color: var(--accent); }
+    h1 { font-size: clamp(32px, 6vw, 44px); line-height: 1.05; letter-spacing: -0.03em; margin: 24px 0 8px; }
+    h2 { font-size: 20px; margin: 32px 0 8px; letter-spacing: -0.01em; }
+    p, li { color: var(--muted); text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+    strong { color: var(--ink); }
+    .brand { display: inline-flex; gap: 10px; align-items: center; color: var(--ink); text-decoration: none; font-weight: 700; }
+    .box { background: var(--raise); border: 1px solid var(--line); border-radius: 16px; padding: 4px 18px; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="brand" href="./">
+      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#dff25a"/><circle cx="16" cy="16" r="6.5" fill="#161a04"/><circle cx="23.5" cy="9.5" r="1.7" fill="#161a04"/></svg>
+      PhoneCam
+    </a>
+    <h1>Privacy policy</h1>
+    <p>Last updated 24 October 2026. This policy covers the PhoneCam website (phonecam.app) and the PhoneCam browser extension.</p>
+
+    <div class="box">
+      <p><strong>In short:</strong> PhoneCam does not sell or share your data, and it collects nothing unless you choose to send a rating. Your camera picture goes directly from your phone to your own computer. We have no servers that see your video or audio, and we use no analytics or tracking.</p>
+    </div>
+
+    <h2>Camera and microphone</h2>
+    <p>On your phone, PhoneCam asks for the camera, and for the microphone only if you turn on “Send the phone mic”. The picture is sent over an encrypted peer-to-peer WebRTC connection straight to the computer that opened the same room. It is not recorded, and it does not pass through any PhoneCam server.</p>
+    <p>When a meeting site asks for the camera called PhoneCam, the extension gives that site the picture from your phone. The meeting site then handles it like any other camera, under that site’s own privacy policy. If the meeting also asks for a microphone, the extension passes that request to your browser unchanged.</p>
+
+    <h2>Connection setup</h2>
+    <p>To introduce your phone and your computer to each other, PhoneCam runs its own signalling service on Cloudflare at phonecam.app. While the connection is being set up, that service sees a random room identifier, your devices’ network addresses and connection details. It does not receive your video or audio, and it does not keep logs of them.</p>
+    <p>Your browser may contact Cloudflare’s STUN server to find a direct path. When a direct connection isn’t possible, for example on mobile data, the video can pass through Cloudflare’s TURN relay. The video stays encrypted end to end, and the relay cannot see it.</p>
+
+    <h2>Pairing</h2>
+    <p>The QR code holds a one-time secret that never leaves your devices. Your phone and computer use it to prove to each other that they belong together before any video is sent. The first phone that pairs gets its own key, and from then on only that phone can connect.</p>
+
+    <h2>What is stored on your devices</h2>
+    <ul>
+      <li>The extension and the receiver page keep their pairing keys in the browser so your phone can reconnect without scanning again. “Pair a different phone” replaces them.</li>
+      <li>The phone keeps the keys for the computers it is paired with, and your camera settings (quality, front or back camera, mic on or off, color). “Forget” in the camera settings removes a computer.</li>
+    </ul>
+    <p>None of this leaves your device, and you can remove it by removing the extension or clearing the site’s data.</p>
+
+    <h2>Ratings and comments</h2>
+    <p>If you choose to rate PhoneCam on phonecam.app, we store your star rating, your comment and name if you add them, whether you agreed to show them on the site, and the date. To stop the same person rating many times a day, we also store a one-way hash of your network address combined with the date. The address itself is not stored and the hash can’t be turned back into it.</p>
+    <p>Comments appear on the website only if you tick “Show my comment and name on the PhoneCam website”, and only after we read them. To have your rating or comment removed, <a href="https://github.com/Anaskaysar/phonecam/issues">open an issue on GitHub</a> with the date and the words you used.</p>
+
+    <h2>Where the extension runs</h2>
+    <p>The extension runs only on the meeting sites listed in the Chrome Web Store page (such as Google Meet, Microsoft Teams, Zoom, Discord, Whereby, Jitsi and Webex) and on phonecam.app. There it adds PhoneCam to the list of cameras. It does not read, change or send the content of those pages.</p>
+
+    <h2>Children</h2>
+    <p>PhoneCam does not knowingly collect information from anyone, including children.</p>
+
+    <h2>Changes and contact</h2>
+    <p>If this policy changes, the new version will be posted on this page with a new date. Questions: <a href="https://github.com/Anaskaysar/phonecam/issues">open an issue on GitHub</a>.</p>
+  </main>
+</body>
+</html>
