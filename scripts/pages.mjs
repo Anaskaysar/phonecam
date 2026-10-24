@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 export const SITE = 'https://phonecam.app'
 const REPO = 'https://github.com/Anaskaysar/phonecam'
+const SUPPORT = 'kaysarulanas2@gmail.com'
 
 const esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const strip = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim()
@@ -98,7 +99,7 @@ function footer(content) {
     <nav class="sf-cols" aria-label="Footer">
       <div><h2>Use PhoneCam</h2>${USE_LINKS.map((item) => `<a href="${item.href}">${item.label === 'Receiver' ? 'Open the receiver' : item.label === 'Phone camera' ? 'Open the camera' : item.label}</a>`).join('')}</div>
       <div><h2>Guides</h2>${guideLinks}<a href="/guides">All guides →</a></div>
-      <div><h2>Help</h2><a href="/#/?section=how">How it works</a><a href="/#/?section=faq">Questions</a><a href="/#/rate">Rate PhoneCam</a><a href="${REPO}/issues">Report a problem</a></div>
+      <div><h2>Help</h2><a href="/#/?section=how">How it works</a><a href="/#/?section=faq">Questions</a><a href="/#/rate">Rate PhoneCam</a><a href="mailto:${SUPPORT}?subject=PhoneCam%20issue">Report an issue</a></div>
       <div><h2>About</h2><a href="/about">About PhoneCam</a><a href="/privacy.html">Privacy</a><a href="${REPO}">Source on GitHub</a></div>
     </nav>
   </div>
@@ -156,6 +157,7 @@ function page({ headHtml, current, main, content }) {
 ${nav(current)}
 ${main}
 ${footer(content)}
+<script src="/help.js" defer></script>
 <script>
   // Close the nav menus after a choice, on Escape, or when clicking elsewhere.
   document.addEventListener('click', function (event) {
@@ -291,6 +293,7 @@ ${entry.body}
     { '@context': 'https://schema.org', '@type': 'AboutPage', name: entry.title, url: `${SITE}${url}`, description: entry.description },
     breadcrumbs([{ name: entry.short || entry.title, url }])
   ]
+  if (entry.faq) jsonLd.push(entry.faq)
   return page({ headHtml: head({ title: entry.title, description: entry.description, url, image: ogImage(entry.slug), type: 'website', jsonLd }), current: entry.slug, main, content })
 }
 

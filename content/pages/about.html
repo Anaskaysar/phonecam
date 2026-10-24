@@ -1,19 +1,68 @@
 <!--
 {
   "slug": "about",
-  "kicker": "About PhoneCam",
+  "kicker": "The PhoneCam story",
   "short": "About",
   "title": "About PhoneCam",
-  "h1": "The best camera you own is already in your pocket.",
-  "lede": "PhoneCam turns the phone you already have into the webcam for your laptop. No app on the phone, no account, and the picture goes straight from the phone to your computer.",
-  "description": "Why PhoneCam exists, what it promises, and how it keeps your camera private: no app on the phone, no account, and video that goes straight from your phone to your computer.",
+  "h1": "You were about to buy a webcam. The better camera is already in your pocket.",
+  "lede": "A laptop camera looks down at you and goes soft when the room gets dim. A cheap webcam is that same idea with a cable. PhoneCam sends the phone you already own to the laptop, for the interview, the class, the client call and the stream.",
+  "description": "PhoneCam exists because laptop cameras look down at you and a cheap webcam barely helps. Use the phone you already own, on a stand of about $3, in Zoom, Meet, Teams and OBS. Free, and no app on the phone.",
   "cover": "/guides/img/about.svg",
-  "updated": "2026-10-24"
+  "updated": "2026-10-24",
+  "faq": {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why does PhoneCam exist?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Laptop cameras are small, fixed and usually looking up at you. A basic webcam is the same kind of camera with a USB cable. PhoneCam uses the phone you already own, on a cheap stand, as the camera for Zoom, Meet, Teams and OBS."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I still need to buy a webcam?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most people do not. A phone from the last few years focuses and can sit at eye level on a stand of about $3. A dedicated webcam is simpler only if you want one cable and never want to think about a phone battery."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is PhoneCam free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. There is no account, no subscription and nothing to install on the phone. The only thing you might buy is a phone stand."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does PhoneCam record my video?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The video goes from your phone to your computer over an encrypted peer-to-peer connection. PhoneCam’s server only introduces the two devices. Nothing is recorded."
+        }
+      }
+    ]
+  }
 }
 -->
-<h2>Why PhoneCam exists</h2>
-<p>Laptop cameras are small, fixed and usually looking up your nose. The usual fix is to buy a webcam. Most people already carry a much better camera, with a bigger sensor, autofocus and a lens that can be put anywhere a $3 stand can hold it.</p>
-<p>The trouble has always been getting that picture to the laptop. Most phone-as-webcam tools ask for an app on the phone and another one on the computer, plus an account. PhoneCam asks for neither on the phone. It runs in Safari or Chrome, so a QR code is all it takes.</p>
+<p>The meeting starts, and the first thing you do is apologise for the picture. The camera in the laptop lid is small, fixed, and usually aimed up your nose. You lean in. You tilt the screen until the keyboard is in the way. Someone says you look dark, or far away, or soft.</p>
+<p>The usual next step is a shopping tab. A webcam under about $100 promises to fix it. Most of them are another small sensor, this time glued to the top of the same screen, with a USB cable. The angle does not move. The room does not get kinder. You have paid for a plastic shell.</p>
+
+<blockquote class="pull">
+  <p>The camera people trust for photos has been in their pocket the whole time. The missing piece was a way to put it in the meeting.</p>
+</blockquote>
+
+<h2>What the laptop camera cannot do</h2>
+<p>A lid camera has one job and one place. It sits above the screen, so it looks down. It cannot move to eye level. It cannot step aside when a window is behind you. In a dim room it smears the picture to keep a frame rate, which is why a face goes soft the moment the lamp is in the wrong place.</p>
+<p>Wiping the lens helps. Facing a window helps. A new webcam of the same size helps less than the box suggests. The longer version of that is <a href="/blurry-laptop-webcam">why a laptop camera looks soft</a>.</p>
+
+<h2>The phone was always the better camera</h2>
+<p>A phone from the last few years focuses. It copes with a bright window more gracefully than a tiny webcam. Put it on a clip, a gooseneck or a mini tripod, often about $3, and you choose the angle: eye level, beside the laptop, or aimed at a desk. The lid no longer decides where your face sits.</p>
+<p>That is the whole shopping list. The phone you have. A stand, if you want the phone to stay still. The laptop you already join meetings on. The case for skipping the webcam is spelled out in <a href="/webcam">why you may not need to buy one</a>.</p>
 
 <figure class="shot pair">
   <img src="/guides/img/shots/phone-live.webp" alt="The PhoneCam camera screen on a phone while live: the video fills the screen and a small label reads Live, keep this screen open" width="390" height="844" loading="lazy">
@@ -21,28 +70,68 @@
   <figcaption>The phone runs PhoneCam in its browser. The laptop shows a code to scan.</figcaption>
 </figure>
 
-<h2>What we promise</h2>
-<ul>
-  <li><strong>Nothing to install on the phone.</strong> The camera page is a website. Add it to the home screen if you like.</li>
-  <li><strong>No account.</strong> There is nothing to sign up for and nothing to log in to.</li>
-  <li><strong>Your video stays yours.</strong> It goes from the phone to your computer over an encrypted peer-to-peer connection. PhoneCam’s server only introduces the two devices. Nothing is recorded, and there is no tracking.</li>
-  <li><strong>One phone per code.</strong> A QR code pairs exactly one phone, once. After that, only that phone can connect, and it reconnects without scanning again.</li>
-  <li><strong>Free.</strong> The camera you already own, a cheap stand if you want one, and that is the whole cost.</li>
+<h2>Getting the picture across was the hard part</h2>
+<p>Phones have been better cameras than laptops for years. Using one in a call usually meant an app from the store, another program on the computer, and an account to tie them together. The camera was good. The path to the meeting was a product of its own.</p>
+<p>PhoneCam is that path, and nothing else. It opens in Safari or Chrome. On the laptop you open the receiver, scan the code, and tap Start. There is nothing to install on the phone and nothing to sign up for. The steps sit on one page: <a href="/use-phone-as-webcam">use your phone as a webcam</a>. The same idea, with the details that differ, is written for <a href="/iphone-as-webcam">iPhone</a> and <a href="/android-as-webcam">Android</a>.</p>
+<div class="box">
+  <p>On a Mac, Apple’s Continuity Camera can already use a nearby iPhone as the webcam. Use that if it does what you want. PhoneCam is there when the computer is a Windows PC or a Chromebook, when the phone should sit on a stand at a chosen angle, or when the meeting needs a browser camera, a shared tab, or an OBS source.</p>
+</div>
+
+<h2>The days it is actually for</h2>
+<p>PhoneCam is built for ordinary calls, not a studio. The phone stays where you put it. The laptop runs the meeting. These are the three that come up most.</p>
+<div class="scenes">
+  <a href="/meeting-webcam">
+    <h3>The interview</h3>
+    <p>Eye level, with the light in front of you. In the browser the camera is named PhoneCam. In the Zoom or Teams desktop app, you share the tab.</p>
+  </a>
+  <a href="/meeting-webcam">
+    <h3>The class or the client call</h3>
+    <p>The phone does not have to live in the lid. A stand holds it. You stop adjusting the screen so your face fits the frame.</p>
+  </a>
+  <a href="/obs-phone-camera">
+    <h3>The stream</h3>
+    <p>OBS takes the phone as a browser source. Virtual Camera then hands that picture to any other app on the computer.</p>
+  </a>
+</div>
+
+<h2>Where the video goes</h2>
+<p>The video goes from the phone to the computer over an encrypted peer-to-peer connection. A small service on Cloudflare introduces the two devices and then steps aside. Before any picture moves, the phone and the laptop prove they share a secret from the QR code, so a stranger who learns a room cannot watch your camera or push video into your call.</p>
+<p>On networks that block a direct path, such as some mobile data and strict office Wi-Fi, the encrypted video can pass through Cloudflare’s relay. The relay cannot read it. Nothing is recorded, and there is no account to attach the call to. The plain version of that promise is the <a href="/privacy.html">privacy policy</a>.</p>
+
+<h2>What we hold to</h2>
+<ul class="holds">
+  <li><strong>The phone stays a phone.</strong> <span>PhoneCam is a website. Safari or Chrome is enough. Add it to the home screen if you want an icon, and that icon opens the camera.</span></li>
+  <li><strong>The video is yours.</strong> <span>It crosses from your phone to your computer. We do not watch it, store it, or ask who you are.</span></li>
+  <li><strong>Free means free.</strong> <span>No trial, no subscription, no sign-up. A stand of about $3 is the only purchase, and only if you want the phone to sit still.</span></li>
+  <li><strong>One phone, one code.</strong> <span>A QR code pairs one phone, once. After that, only that phone can connect, and it reconnects without scanning again.</span></li>
 </ul>
 
-<h2>Three ways into a meeting</h2>
-<p>Every meeting app is different, so PhoneCam gives you three ways in, and none of them need a webcam:</p>
+<h2>When a real webcam is the right buy</h2>
+<p>Buy one if you want a single USB cable and you never want to think about a phone battery. PhoneCam keeps the phone awake while you stream, and an iPhone pauses the camera if you leave Safari. A dedicated webcam is simpler in that one way. It is rarely the sharper picture, and it still cannot move.</p>
+
+<h2>Questions people ask first</h2>
+<h3>Why does PhoneCam exist?</h3>
+<p>Because the camera in the laptop is the weak one, and the usual fix is to buy another weak one. The phone you already use for photos is the better camera. PhoneCam is how that picture joins Zoom, Meet, Teams and OBS.</p>
+<h3>Do I still need to buy a webcam?</h3>
+<p>Most people do not. A phone on a cheap stand is the setup. A dedicated webcam is the right buy only when you want one cable and no battery to watch.</p>
+<h3>Is PhoneCam free?</h3>
+<p>Yes. No account and no subscription. Nothing to install on the phone.</p>
+<h3>Does PhoneCam record my video?</h3>
+<p>No. The picture goes straight from your phone to your computer. The server only introduces the two devices.</p>
+
+<h2>If this is the problem you have</h2>
 <ul>
-  <li><strong>The browser extension</strong> adds a camera called PhoneCam to Google Meet, Teams, Zoom, Discord, Whereby, Jitsi and Webex in Chrome or Edge.</li>
-  <li><strong>Share a tab</strong> works in every meeting app, including the Zoom and Teams desktop apps, with nothing to install.</li>
-  <li><strong>OBS</strong> takes the phone as a browser source, and OBS Virtual Camera hands it to any app on the computer.</li>
+  <li><a href="/blurry-laptop-webcam">The laptop camera looks soft</a></li>
+  <li><a href="/webcam">You are about to buy a webcam</a></li>
+  <li><a href="/use-phone-as-webcam">You want the phone in the meeting today</a></li>
+  <li><a href="/iphone-as-webcam">The phone is an iPhone</a></li>
+  <li><a href="/android-as-webcam">The phone is Android</a></li>
+  <li><a href="/meeting-webcam">The call is Zoom, Meet or Teams</a></li>
+  <li><a href="/obs-phone-camera">The picture should land in OBS</a></li>
 </ul>
-<p>Not sure which one? Start with <a href="/use-phone-as-webcam">use your phone as a webcam</a>.</p>
+<p>Every guide is listed on <a href="/guides">the guides page</a>.</p>
 
-<h2>How it is built</h2>
-<p>PhoneCam is a web app that you can install on the phone, a small browser extension, and a signalling service on Cloudflare that introduces the phone to the laptop. The phone and the laptop prove to each other that they share a secret from the QR code before any video moves, so a stranger who learns a room cannot see your camera or push video into your call. On networks that block direct connections, the encrypted video can pass through Cloudflare’s relay, which cannot read it. The details are in the <a href="/privacy.html">privacy policy</a>.</p>
-
-<h2>Open source, and listening</h2>
-<p>The code is on <a href="https://github.com/Anaskaysar/phonecam">GitHub</a>. If something does not work with your phone or your meeting app, <a href="https://github.com/Anaskaysar/phonecam/issues">open an issue</a>. If it does work, <a href="/#/rate">a rating</a> helps other people find it.</p>
+<h2>Open, and listening</h2>
+<p>The code is on <a href="https://github.com/Anaskaysar/phonecam">GitHub</a>. If a phone or a meeting app does something unexpected, <a href="mailto:kaysarulanas2@gmail.com?subject=PhoneCam%20issue">email us</a>. If the picture is the one you wanted, <a href="/#/rate">a rating</a> helps the next person find it.</p>
 
 <p><a class="cta" href="/#/receiver">Open the receiver</a> <a class="cta quiet" href="/guides">Read the guides</a></p>
