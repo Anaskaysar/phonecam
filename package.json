@@ -8,7 +8,7 @@
     "build": "vite build",
     "build:pages": "vite build --base /phonecam/",
     "preview": "vite preview",
-    "deploy": "wrangler pages deploy dist"
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "peerjs": "^1.5.5",
