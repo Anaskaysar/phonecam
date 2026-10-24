@@ -1,5 +1,11 @@
 name = "phonecam"
 compatibility_date = "2024-09-23"
+workers_dev = true
+
+routes = [
+  { pattern = "phonecam.app", custom_domain = true },
+  { pattern = "www.phonecam.app", custom_domain = true }
+]
 
 [assets]
 directory = "./dist"
