@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhoneCam</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0d12">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+  html,body { margin:0; min-height:100%; background:#0b0d12; color:#eef1f6;
+    font:16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width:520px; margin:0 auto; padding:48px 20px; display:grid; gap:16px; }
+  h1 { margin:0; font-size:28px; }
+  p { margin:0; color:#9aa3b2; }
+  a.btn { display:block; text-decoration:none; color:#eef1f6; background:#151a23; border-radius:14px; padding:18px; }
+  a.btn b { display:block; font-size:18px; }
+  a.btn span { color:#9aa3b2; font-size:14px; }
+</style>
+<script>
+  // Opened from the home screen icon on a phone → go straight to the camera
+  if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) location.replace('camera.html');
+</script>
+</head>
+<body>
+<main>
+  <h1>PhoneCam</h1>
+  <p>Use your iPhone as a webcam on any laptop. Free, no app store.</p>
+  <a class="btn" href="camera.html"><b>📱 I'm on my iPhone</b><span>Open the camera. Then Share → Add to Home Screen to install it.</span></a>
+  <a class="btn" href="receiver.html"><b>💻 I'm on my laptop</b><span>Get a room code and the URL to put into OBS.</span></a>
+</main>
+</body>
+</html>

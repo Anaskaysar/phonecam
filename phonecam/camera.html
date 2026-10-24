@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>PhoneCam</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PhoneCam">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+  :root { --bg:#0b0d12; --panel:rgba(20,24,32,.82); --text:#eef1f6; --muted:#9aa3b2; --accent:#5b8cff; --live:#ff4d5e; --ok:#3ccf8e; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--text);
+    font:16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow:hidden; }
+  video { position:fixed; inset:0; width:100%; height:100%; object-fit:cover; background:#000; }
+  video.mirror { transform:scaleX(-1); }
+  .top { position:fixed; top:0; left:0; right:0; padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;
+    display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .pill { background:var(--panel); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border-radius:999px; padding:6px 12px; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--muted); }
+  .dot.live { background:var(--live); box-shadow:0 0 0 4px rgba(255,77,94,.25); }
+  .dot.wait { background:#f5b041; }
+  .bottom { position:fixed; left:0; right:0; bottom:0; padding:12px 16px calc(env(safe-area-inset-bottom) + 16px);
+    display:flex; flex-direction:column; gap:12px; }
+  .panel { background:var(--panel); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-radius:18px; padding:14px; display:grid; gap:10px; }
+  .row { display:flex; gap:10px; align-items:center; }
+  label { font-size:13px; color:var(--muted); }
+  input, select { flex:1; min-width:0; background:rgba(255,255,255,.08); color:var(--text); border:1px solid rgba(255,255,255,.12);
+    border-radius:10px; padding:10px 12px; font-size:16px; }
+  input:disabled, select:disabled { opacity:.55; }
+  .controls { display:flex; gap:12px; align-items:center; justify-content:center; }
+  button { border:0; border-radius:999px; font-size:16px; font-weight:600; color:var(--text); cursor:pointer; }
+  .round { width:54px; height:54px; background:var(--panel); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    display:grid; place-items:center; }
+  .round svg { width:24px; height:24px; }
+  .main { flex:1; max-width:260px; height:58px; background:var(--accent); }
+  .main.stop { background:var(--live); }
+  .hidden { display:none !important; }
+  .hint { font-size:12px; color:var(--muted); text-align:center; }
+</style>
+</head>
+<body>
+<video id="preview" autoplay playsinline muted class="mirror"></video>
+
+<div class="top">
+  <div class="pill"><span id="dot" class="dot"></span><span id="status">Ready</span></div>
+  <div class="pill" id="resInfo">—</div>
+</div>
+
+<div class="bottom">
+  <div class="panel" id="settings">
+    <div class="row">
+      <label for="room" style="width:64px">Room</label>
+      <input id="room" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="room code from your laptop">
+    </div>
+    <div class="row">
+      <label for="quality" style="width:64px">Quality</label>
+      <select id="quality">
+        <option value="720">720p · 30 fps</option>
+        <option value="1080">1080p · 30 fps</option>
+        <option value="480">480p · 30 fps (weak Wi‑Fi)</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="mic" style="width:64px">Mic</label>
+      <select id="mic">
+        <option value="0">Off (use laptop mic)</option>
+        <option value="1">Send phone mic</option>
+      </select>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="round" id="flip" aria-label="Switch camera" title="Switch camera">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3l2-3h8l2 3h3v12H3z"/><path d="M9 13a3 3 0 0 1 5.2-2"/><path d="M15 13a3 3 0 0 1-5.2 2"/><path d="M14.5 9v2.2h-2.2"/><path d="M9.5 17v-2.2h2.2"/></svg>
+    </button>
+    <button class="main" id="go">Start streaming</button>
+    <button class="round" id="hide" aria-label="Hide settings" title="Hide settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+  <div class="hint" id="hint">Keep this app open with the screen on while streaming.</div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const preview = $('preview'), roomIn = $('room'), qualitySel = $('quality'), micSel = $('mic');
+const goBtn = $('go'), flipBtn = $('flip');
+
+const store = {
+  get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+};
+const qs = new URLSearchParams(location.search);
+roomIn.value = qs.get('room') || store.get('pc.room', '');
+qualitySel.value = store.get('pc.quality', '720');
+micSel.value = store.get('pc.mic', '0');
+
+let facing = store.get('pc.facing', 'user');   // 'user' = front, 'environment' = back
+let stream = null, peer = null, call = null, wakeLock = null;
+let streaming = false, retryTimer = null;
+
+const ROOM_PREFIX = 'phonecam-v1-';
+const cleanRoom = s => s.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+
+function setStatus(text, state) {
+  $('status').textContent = text;
+  $('dot').className = 'dot' + (state ? ' ' + state : '');
+}
+
+function constraints() {
+  const h = Number(qualitySel.value), w = Math.round(h * 16 / 9);
+  return {
+    video: { facingMode: { ideal: facing }, width: { ideal: w }, height: { ideal: h }, frameRate: { ideal: 30, max: 30 } },
+    audio: micSel.value === '1' ? { echoCancellation: true, noiseSuppression: true } : false
+  };
+}
+
+async function openCamera() {
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = await navigator.mediaDevices.getUserMedia(constraints());
+  preview.srcObject = stream;
+  preview.classList.toggle('mirror', facing === 'user');
+  const s = stream.getVideoTracks()[0].getSettings();
+  $('resInfo').textContent = `${s.width || '?'}×${s.height || '?'} · ${facing === 'user' ? 'front' : 'back'}`;
+  stream.getVideoTracks()[0].onended = () => { if (streaming) restartCamera(); };
+}
+
+async function restartCamera() {
+  try {
+    await openCamera();
+    if (call && call.peerConnection) {
+      for (const sender of call.peerConnection.getSenders()) {
+        const t = sender.track && stream.getTracks().find(x => x.kind === sender.track.kind);
+        if (t) await sender.replaceTrack(t);
+      }
+    }
+  } catch (e) { setStatus('Camera error: ' + e.message); }
+}
+
+function tuneBitrate(pc) {
+  const h = Number(qualitySel.value);
+  const maxBitrate = h >= 1080 ? 6_000_000 : h >= 720 ? 3_500_000 : 1_500_000;
+  pc.getSenders().forEach(sender => {
+    if (!sender.track || sender.track.kind !== 'video') return;
+    const p = sender.getParameters();
+    if (!p.encodings || !p.encodings.length) p.encodings = [{}];
+    p.encodings[0].maxBitrate = maxBitrate;
+    p.encodings[0].maxFramerate = 30;
+    p.degradationPreference = 'maintain-resolution';
+    sender.setParameters(p).catch(() => {});
+  });
+}
+
+function placeCall() {
+  clearTimeout(retryTimer);
+  if (!streaming || !peer || peer.destroyed) return;
+  const room = cleanRoom(roomIn.value);
+  setStatus('Looking for laptop…', 'wait');
+  call = peer.call(ROOM_PREFIX + room, stream);
+  if (!call) { scheduleRetry(); return; }
+  const pc = call.peerConnection;
+  pc.addEventListener('connectionstatechange', () => {
+    if (pc.connectionState === 'connected') { setStatus('Live on laptop', 'live'); tuneBitrate(pc); }
+    if (['failed', 'disconnected', 'closed'].includes(pc.connectionState) && streaming) {
+      setStatus('Connection lost — retrying…', 'wait'); scheduleRetry();
+    }
+  });
+  call.on('close', () => { if (streaming) { setStatus('Laptop disconnected — retrying…', 'wait'); scheduleRetry(); } });
+  call.on('error', () => scheduleRetry());
+}
+
+function scheduleRetry() {
+  clearTimeout(retryTimer);
+  if (call) { try { call.close(); } catch {} call = null; }
+  retryTimer = setTimeout(placeCall, 3000);
+}
+
+async function start() {
+  const room = cleanRoom(roomIn.value);
+  if (!room) { setStatus('Enter the room code shown on your laptop'); roomIn.focus(); return; }
+  store.set('pc.room', room); store.set('pc.quality', qualitySel.value); store.set('pc.mic', micSel.value);
+  roomIn.value = room;
+  streaming = true;
+  goBtn.textContent = 'Stop'; goBtn.classList.add('stop');
+  [roomIn, qualitySel, micSel].forEach(el => el.disabled = true);
+  try { await openCamera(); } catch (e) { stop(); setStatus('Camera blocked: ' + e.message); return; }
+  requestWakeLock();
+  setStatus('Connecting…', 'wait');
+  peer = new Peer({ debug: 1 });
+  peer.on('open', placeCall);
+  peer.on('error', err => {
+    if (err.type === 'peer-unavailable') { setStatus('Laptop page not open yet — retrying…', 'wait'); scheduleRetry(); }
+    else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') {
+      setStatus('Network issue — retrying…', 'wait'); setTimeout(() => { if (streaming && peer && peer.disconnected) peer.reconnect(); }, 3000);
+    } else setStatus('Error: ' + err.type);
+  });
+  peer.on('disconnected', () => { if (streaming) setTimeout(() => peer && !peer.destroyed && peer.reconnect(), 2000); });
+}
+
+function stop() {
+  streaming = false;
+  clearTimeout(retryTimer);
+  if (call) { try { call.close(); } catch {} call = null; }
+  if (peer) { peer.destroy(); peer = null; }
+  if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+  goBtn.textContent = 'Start streaming'; goBtn.classList.remove('stop');
+  [roomIn, qualitySel, micSel].forEach(el => el.disabled = false);
+  setStatus('Stopped');
+}
+
+async function requestWakeLock() {
+  try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch {}
+}
+
+goBtn.onclick = () => streaming ? stop() : start();
+flipBtn.onclick = async () => {
+  facing = facing === 'user' ? 'environment' : 'user';
+  store.set('pc.facing', facing);
+  await restartCamera();
+};
+$('hide').onclick = () => {
+  $('settings').classList.toggle('hidden');
+  $('hint').classList.toggle('hidden');
+};
+
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible') return;
+  if (streaming) {
+    requestWakeLock();
+    const t = stream && stream.getVideoTracks()[0];
+    if (!t || t.readyState === 'ended' || t.muted) await restartCamera();
+  }
+});
+
+// Show the preview right away so the user can frame the shot
+openCamera().then(() => setStatus('Ready')).catch(e => setStatus('Tap Start to allow the camera'));
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0d11" />
+  <meta name="description" content="Use the phone you already own as a webcam on your laptop." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PhoneCam" />
+  <link rel="icon" href="%BASE_URL%icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-180.png" />
+  <title>PhoneCam</title>
+  <script>
+    (function () {
+      var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone
+      if (standalone) document.documentElement.classList.add('standalone')
+      var hash = location.hash
+      if (standalone && (!hash || hash === '#' || hash === '#/')) location.replace('#/camera')
+    })()
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <noscript>PhoneCam needs JavaScript to reach your camera.</noscript>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
