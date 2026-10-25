@@ -8,8 +8,8 @@ Work through this top to bottom. Tick each box as you go. If something fails, st
 
 - [ ] `npm install` finishes with no errors
 - [ ] First time only: `npx playwright install chromium`
-- [ ] `npm test` → **25 pass, 0 fail** (pairing, Worker and signalling unit tests, a few seconds)
-- [ ] `npm run test:e2e` → **62 pass, 0 fail** (about 3 minutes; builds a test copy in `.test-build/`, runs the Worker locally, drives Chromium with a fake camera)
+- [ ] `npm test` → **29 pass, 0 fail** (pairing, Worker and signalling unit tests, a few seconds)
+- [ ] `npm run test:e2e` → **65 pass, 0 fail** (about 3 minutes; builds a test copy in `.test-build/`, runs the Worker locally, drives Chromium with a fake camera)
 - [ ] `npm run build` finishes and prints `Pages built: 10 files` and `Extension built`
 - [ ] `store/phonecam-extension-1.0.0.zip` exists
 - [ ] `unzip -l store/phonecam-extension-1.0.0.zip` shows `manifest.json` at the top level (not inside a folder)
@@ -20,11 +20,11 @@ Work through this top to bottom. Tick each box as you go. If something fails, st
 | Suite | Checks |
 |---|---|
 | Unit: pairing | random 16-character room ids; 256-bit keys; proofs fail with the wrong key, role, nonce order, a replayed nonce, or a forged or oversized proof; the session key is sealed, can't be opened with another key, and tampering is detected; junk pair links are rejected |
-| Unit: Worker | signalling refuses other sites, plain requests, old (v1) ids, and runs without the Durable Object binding only as 503; TURN credentials only for PhoneCam and the meeting sites, and port 53 is dropped; ratings: site-only, JSON, whole number 1–5, trimmed text, length limits, bot trap, one per visitor per day, the address is never stored |
+| Unit: Worker | signalling refuses other sites, plain requests, old (v1) ids, and runs without the Durable Object binding only as 503; TURN credentials only for PhoneCam and the meeting sites, and port 53 is dropped; ratings: site-only, JSON, whole number 1–5, trimmed text, length limits, bot trap, one per visitor per day, the address is never stored, the table is created on first use; there is no admin API on the public site |
 | Unit: signalling room | offers relayed inside a room with the sender's id; never relayed to another room; an offline target gets EXPIRE; junk, unknown types and messages over 32 KB are ignored |
 | E2E: security | pair from the link and go live; the key leaves the address bar; the QR key is burned and the phone gets its own key; a second phone with the same code is refused; a phone without the key can't push video mid-call; the paired phone reconnects without scanning; a phone won't stream to someone who grabbed the room first; a junk link is refused |
 | E2E: extension | the PhoneCam camera appears in a meeting page with a strict security policy; picking it gives a live track labelled PhoneCam, with the laptop mic; the waiting card shows; the phone pairs from the popup's link and its picture replaces the card; the popup goes Not in a meeting yet → Waiting for you to scan → Live and folds its steps; back to idle after the meeting closes; the OBS view never shows a code |
-| E2E: pages | home, the 3 receiver tabs, camera, check, rate, privacy, Guides, About and the 7 guides load on a laptop and a phone with no errors and no sideways scroll; one main button on the home page; the Use PhoneCam menu opens, marks the current page and closes on a pick or Escape; the phone menu lists 4 + 3 links and closes; Guides and About are in the nav, guides link back to the guides, and the static pages share the same menu; every picture and social image on the guides and About loads; the sitemap lists them; footer columns and version on every page; the home page steps to a new color edition each visit and keeps it on refresh; Black & white sticks; the accent picked on the phone sticks; the camera won't start before pairing; a rating goes through, a second one is refused, and comments stay hidden until approved |
+| E2E: pages | home, the 3 receiver tabs, camera, check, rate, privacy, Guides, About and the 7 guides load on a laptop and a phone with no errors and no sideways scroll; one main button on the home page; the Use PhoneCam menu opens, marks the current page and closes on a pick or Escape; the phone menu lists 4 + 3 links and closes; Guides and About are in the nav, guides link back to the guides, and the static pages share the same menu; every picture and social image on the guides and About loads; the sitemap lists them; footer columns and version on every page; the home page steps to a new color edition each visit and keeps it on refresh; Black & white sticks; the accent picked on the phone sticks; the camera won't start before pairing; a rating goes through, a second one is refused, and comments stay hidden until approved; the site has no admin page or admin API |
 
 ---
 
@@ -44,7 +44,9 @@ Work through this top to bottom. Tick each box as you go. If something fails, st
 - [ ] Optional now, recommended before you announce it: TURN relay
   - Cloudflare dashboard → Realtime → TURN Server → create a key
   - `npx wrangler secret put TURN_KEY_ID`, then `npx wrangler secret put TURN_KEY_API_TOKEN`
-- [ ] Ratings database (see README → Ratings and testimonials): create, paste the id into `wrangler.toml`, apply `worker/schema.sql`, deploy again
+- [ ] Ratings database (see README → Ratings and testimonials): `npx wrangler d1 create phonecam`, paste the id into `wrangler.toml`, push
+- [ ] On your Mac: `node admin-local/server.mjs` opens the local admin and shows the totals (0 ratings is fine)
+- [ ] Leave a test rating with a comment and "show on site" ticked, approve it in the local admin, check the home page within 5 minutes, then delete it
 
 ### Live smoke test (laptop browser, 2 minutes)
 

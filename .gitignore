@@ -8,3 +8,10 @@ dist
 dist-extension
 store/*.zip
 .test-build
+env
+.env
+.dev.vars
+# Temporary copies Claude uses to move files
+.*.tgz
+# Local-only admin tool: never pushed
+admin-local/

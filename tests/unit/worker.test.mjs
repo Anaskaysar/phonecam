@@ -17,10 +17,13 @@ const env = (extra = {}) => ({ ASSETS: assets, ...extra })
 const get = (path, headers = {}) => worker.fetch(new Request(`${SITE}${path}`, { headers }), env())
 
 // A tiny stand-in for the D1 database: records inserts, can be told to fail.
-function fakeDb({ unique = false } = {}) {
+function fakeDb({ unique = false, changes = 1 } = {}) {
   const inserts = []
+  const batches = []
   return {
     inserts,
+    batches,
+    async batch(statements) { batches.push(statements.length); return [] },
     prepare(sql) {
       let args = []
       return {
@@ -28,10 +31,10 @@ function fakeDb({ unique = false } = {}) {
         async run() {
           if (unique) throw new Error('D1_ERROR: UNIQUE constraint failed: feedback.visitor_day')
           inserts.push({ sql, args })
-          return { success: true }
+          return { success: true, meta: { changes } }
         },
-        async first() { return { count: 2, average: 4.5 } },
-        async all() { return { results: [{ rating: 5, comment: 'Great', name: '', created_at: '2026-10-24 10:00:00' }] } }
+        async first() { return { count: 2, average: 4.5, waiting: 1, shown: 0, s4: 1, s5: 1 } },
+        async all() { return { results: [{ id: 7, rating: 5, comment: 'Great', name: '', public_ok: 1, approved: 0, created_at: '2026-10-24 10:00:00' }] } }
       }
     }
   }
@@ -213,6 +216,20 @@ function room(...sockets) {
 
 const LAPTOP = `phonecam-v2-${ROOM}`
 const PHONE = `phonecam-v2-${ROOM}-pabcdefgh`
+
+test('ratings: the table is created on first use', async () => {
+  const db = fakeDb()
+  await worker.fetch(new Request(`${SITE}/api/feedback`), env({ DB: db }))
+  await worker.fetch(new Request(`${SITE}/api/feedback`), env({ DB: db }))
+  assert.deepEqual(db.batches, [2], 'once per database, both statements')
+})
+
+test('there is no admin API on the public site', async () => {
+  for (const method of ['GET', 'POST']) {
+    const response = await worker.fetch(new Request(`${SITE}/api/admin/feedback`, { method, headers: { authorization: 'Bearer x' } }), env({ DB: fakeDb(), ADMIN_TOKEN: 'x' }))
+    assert.equal(response.status, 404, method)
+  }
+})
 
 test('signalling relays offers inside a room, tagged with the sender', () => {
   const laptop = socket(LAPTOP)

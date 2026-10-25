@@ -196,25 +196,36 @@ Test the whole thing locally with `wrangler dev`: build with `PHONECAM_PEER_SERV
 
 ## Ratings and testimonials
 
-`#/rate` lets people leave 1 to 5 stars, an optional comment and name, and tick whether the comment may be shown on the site. The home page shows the average rating and approved comments. `worker/index.js` serves `/api/feedback` and stores ratings in a Cloudflare D1 database. Until the database is set up, the home page hides the ratings section and the API answers 503.
+`#/rate` lets people leave 1 to 5 stars, an optional comment and name, and tick whether the comment may be shown on the site. The home page shows the average rating and the comments you approved. `worker/index.js` serves `/api/feedback` and stores ratings in **Cloudflare D1**, a free SQL database on the same account (free plan: 5 GB, 5 million reads and 100,000 writes a day). Until the database is connected, the home page hides the ratings section and the API answers 503.
 
-Turn it on once:
+Turn it on once (about 5 minutes):
 
 ```bash
 npx wrangler d1 create phonecam          # copy the database_id it prints
 # paste it into the [[d1_databases]] block in wrangler.toml and remove the # signs
-npx wrangler d1 execute phonecam --remote --file=worker/schema.sql
-npm run build && npm run deploy
+git commit -am "Turn on ratings" && git push   # or: npm run build && npm run deploy
 ```
 
-Read new feedback and approve comments for the site:
+The Worker creates the `feedback` table on first use, so there is no schema step (`worker/schema.sql` is the same table, for reference).
+
+### Moderating
+
+There is deliberately **no admin page on the public site**. Moderation runs on your own computer with a small local tool in `admin-local/`, which is in `.gitignore` and never pushed. It uses your Cloudflare login (`npx wrangler login`) to read and change the ratings:
+
+```bash
+node admin-local/server.mjs     # opens http://127.0.0.1:4545
+```
+
+Without the tool, the same can be done with Wrangler directly:
 
 ```bash
 npx wrangler d1 execute phonecam --remote --command "SELECT id, rating, name, comment, public_ok, approved, created_at FROM feedback ORDER BY id DESC LIMIT 20"
 npx wrangler d1 execute phonecam --remote --command "UPDATE feedback SET approved = 1 WHERE id = 12"
 ```
 
-Only rows with `public_ok = 1` and `approved = 1` appear on the site, within 5 minutes. To remove one, `DELETE FROM feedback WHERE id = 12`. One rating per visitor per day; the Worker stores a hash of the network address and the date, never the address.
+Only rows with `public_ok = 1` and `approved = 1` appear on the site (the newest 12), within 5 minutes.
+
+One rating per visitor per day; the Worker stores a hash of the network address and the date, never the address.
 
 ## Color
 

@@ -1,7 +1,11 @@
+import { useId } from 'react'
+
 const STAR = 'M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z'
 
 /* Read-only stars. value can be fractional (4.6 fills four and a bit). */
 export function StarRow({ value, size = 18, label }) {
+  // Each row needs its own gradient ids, or every row on the page copies the first row's fill.
+  const uid = useId().replace(/:/g, '')
   const rounded = Math.round(value * 2) / 2
   return (
     <span className="stars" role="img" aria-label={label || `${value} out of 5 stars`} style={{ '--star': `${size}px` }}>
@@ -10,12 +14,12 @@ export function StarRow({ value, size = 18, label }) {
         return (
           <svg key={n} viewBox="0 0 24 24" aria-hidden="true">
             <defs>
-              <linearGradient id={`half-${n}-${size}`}>
+              <linearGradient id={`half-${uid}-${n}`}>
                 <stop offset={`${fill * 100}%`} stopColor="currentColor" />
                 <stop offset={`${fill * 100}%`} stopColor="transparent" />
               </linearGradient>
             </defs>
-            <path d={STAR} fill={`url(#half-${n}-${size})`} stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+            <path d={STAR} fill={`url(#half-${uid}-${n})`} stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
           </svg>
         )
       })}

@@ -11,6 +11,9 @@
 
   Ratings are stored in the D1 database bound as env.DB. Until that database
   is set up, the API answers 503 and the site hides the ratings section.
+  The table is created on first use, so a new database needs no setup step.
+  There is no admin API on purpose: ratings are moderated from your own computer
+  with the local tool in admin-local/ (not in git), through your Cloudflare login.
   TURN needs the TURN_KEY_ID and TURN_KEY_API_TOKEN secrets. Without them
   /api/turn returns no servers and connections use direct paths only.
 */
@@ -104,6 +107,34 @@ async function visitorDay(request, salt) {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
+// Same table as worker/schema.sql. Created once per Worker instance, so a fresh
+// D1 database works without running the schema by hand.
+const SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT NOT NULL DEFAULT '',
+    name TEXT NOT NULL DEFAULT '',
+    public_ok INTEGER NOT NULL DEFAULT 0,
+    approved INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    visitor_day TEXT NOT NULL UNIQUE
+  )`,
+  'CREATE INDEX IF NOT EXISTS feedback_shown ON feedback (approved, public_ok, created_at)'
+]
+const ready = new WeakMap()
+
+function ensureSchema(db) {
+  if (!ready.has(db)) {
+    const job = db.batch(SCHEMA.map((sql) => db.prepare(sql))).catch((error) => {
+      ready.delete(db)
+      throw error
+    })
+    ready.set(db, job)
+  }
+  return ready.get(db)
+}
+
 async function summary(env) {
   const stats = await env.DB.prepare('SELECT COUNT(*) AS count, AVG(rating) AS average FROM feedback').first()
   const { results } = await env.DB.prepare(
@@ -193,6 +224,7 @@ export default {
     if (url.pathname === '/api/feedback') {
       if (!env.DB) return json({ error: 'Ratings are not set up yet.' }, 503)
       try {
+        await ensureSchema(env.DB)
         if (request.method === 'GET') return await summary(env)
         if (request.method === 'POST') return await submit(request, env)
         return json({ error: 'Method not allowed.' }, 405, { allow: 'GET, POST' })

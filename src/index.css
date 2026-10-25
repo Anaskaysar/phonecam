@@ -1344,3 +1344,4 @@ a.secondary { color: var(--ink); text-decoration: none; }
 @media (max-width: 980px) {
   .sf-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+

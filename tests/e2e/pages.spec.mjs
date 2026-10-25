@@ -120,9 +120,11 @@ test('every picture in the guides and About loads', async () => {
     await page.evaluate(async () => {
       for (const img of document.images) { img.loading = 'eager'; if (!img.complete) await new Promise((done) => { img.onload = img.onerror = done }) }
     })
-    const broken = await page.evaluate(() => [...document.images].filter((img) => !img.naturalWidth).map((img) => img.src))
+    // Only PhoneCam's own pictures: outside images (like country flags) depend on the network the test runs on.
+    const broken = await page.evaluate(() => [...document.images].filter((img) => img.src.startsWith(location.origin) && !img.naturalWidth).map((img) => img.src))
     assert.deepEqual(broken, [], path)
-    assert.ok(await page.locator('main img, article img').count() > 0, `${path} has pictures`)
+    // The support page is text only; every other page should have a picture.
+    if (path !== '/support') assert.ok(await page.locator('main img, article img').count() > 0, `${path} has pictures`)
     const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content')
     assert.equal((await page.request.get(BASE + new URL(ogImage).pathname)).status(), 200, `${path} social image`)
     await page.context().close()
@@ -196,5 +198,13 @@ test('a rating goes through and shows on the home page once approved', { timeout
   const summary = await page.evaluate(async () => (await fetch('/api/feedback')).json())
   assert.ok(summary.count >= 1)
   assert.ok(!summary.testimonials.some((t) => t.comment === 'End-to-end test rating'), 'not shown until approved')
+  await page.context().close()
+})
+
+test('the site has no admin page', async () => {
+  const { page } = await open('/#/admin', 'laptop')
+  await page.waitForURL(/#\/$/)
+  assert.equal(await page.locator('input[type="password"]').count(), 0)
+  assert.equal((await page.request.get(`${BASE}/api/admin/feedback`)).status(), 404)
   await page.context().close()
 })

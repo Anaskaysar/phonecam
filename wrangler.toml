@@ -39,12 +39,12 @@ new_sqlite_classes = ["VisitCounter"]
 #   npx wrangler secret put TURN_KEY_ID
 #   npx wrangler secret put TURN_KEY_API_TOKEN
 
-# Ratings database. To turn ratings on:
+# Ratings database (Cloudflare D1, free). To turn ratings on:
 #   1. npx wrangler d1 create phonecam
 #   2. paste the database_id it prints below and remove the # signs
-#   3. npx wrangler d1 execute phonecam --remote --file=worker/schema.sql
+# The Worker creates the table itself on first use. Moderate with admin-local/ (local only).
 # Until then the site simply hides the ratings section.
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "phonecam"
-# database_id = "PASTE-ID-HERE"
+[[d1_databases]]
+binding = "DB"
+database_name = "phonecam"
+database_id = "a33ee483-2a24-4467-80b0-e0d9c744e510"
