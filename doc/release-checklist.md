@@ -46,7 +46,7 @@ Work through this top to bottom. Tick each box as you go. If something fails, st
   - `npx wrangler secret put TURN_KEY_ID`, then `npx wrangler secret put TURN_KEY_API_TOKEN`
 - [ ] Ratings database (see README → Ratings and testimonials): `npx wrangler d1 create phonecam`, paste the id into `wrangler.toml`, push
 - [ ] On your Mac: `node admin-local/server.mjs` opens the local admin and shows the totals (0 ratings is fine)
-- [ ] Leave a test rating with a comment and "show on site" ticked, approve it in the local admin, check the home page within 5 minutes, then delete it
+- [ ] Leave a test rating with a comment and "show on site" ticked, approve it in the local admin, check the home page within 30 seconds, then delete it
 
 ### Live smoke test (laptop browser, 2 minutes)
 

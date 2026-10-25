@@ -152,7 +152,7 @@ async function summary(env) {
       }))
     },
     200,
-    { 'cache-control': 'public, max-age=300' }
+    { 'cache-control': 'public, max-age=30' }
   )
 }
 

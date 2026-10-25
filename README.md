@@ -223,7 +223,7 @@ npx wrangler d1 execute phonecam --remote --command "SELECT id, rating, name, co
 npx wrangler d1 execute phonecam --remote --command "UPDATE feedback SET approved = 1 WHERE id = 12"
 ```
 
-Only rows with `public_ok = 1` and `approved = 1` appear on the site (the newest 12), within 5 minutes.
+Only rows with `public_ok = 1` and `approved = 1` appear on the site (the newest 12), within 30 seconds.
 
 One rating per visitor per day; the Worker stores a hash of the network address and the date, never the address.
 
