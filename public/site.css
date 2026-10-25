@@ -194,6 +194,50 @@ img { max-width: 100%; height: auto; display: block; }
   font-weight: 700;
 }
 .prose .cta.quiet { background: transparent; color: var(--ink); border: 1px solid rgba(255, 255, 255, 0.16); }
+.visit-map {
+  display: grid;
+  gap: 22px;
+  align-items: center;
+  margin: 56px 0 0;
+  padding: clamp(22px, 4vw, 32px);
+  border-radius: 24px;
+  background:
+    radial-gradient(520px 200px at 0% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%),
+    var(--raise-2);
+  border: 1px solid var(--line);
+}
+.visit-map[hidden] { display: none; }
+.visit-map .kicker { margin: 0 0 8px; }
+.prose .visit-map-total {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(56px, 8vw, 80px);
+  font-weight: 750;
+  letter-spacing: -0.055em;
+  line-height: 0.85;
+  text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+.prose .visit-map-note { margin: 10px 0 0; color: var(--soft); font-size: 15px; line-height: 1.4; text-align: start; }
+.visit-flags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.visit-flags li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  border: 1px solid var(--line);
+  text-align: start;
+}
+.visit-flags li::marker { content: ''; }
+.visit-flags img { width: 28px; height: 20px; object-fit: cover; border-radius: 4px; display: block; }
+.visit-flags .visit-name { color: var(--ink); font-size: 14px; font-weight: 650; }
+.visit-flags b { color: var(--soft); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (min-width: 720px) {
+  .visit-map:not([data-empty='true']) { grid-template-columns: minmax(150px, 200px) minmax(0, 1fr); }
+}
 .prose .pull { margin: 32px 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--accent); }
 .prose .pull p { margin: 0; color: var(--ink); font-size: clamp(22px, 3vw, 28px); line-height: 1.25; letter-spacing: -0.03em; font-weight: 650; }
 .scenes { display: grid; gap: 12px; margin: 18px 0 8px; }

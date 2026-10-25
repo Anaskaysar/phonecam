@@ -129,4 +129,55 @@
 
   window.addEventListener('hashchange', place)
   place()
+
+  // Count this browser once. The map is only on the About page, at the end.
+  if (window.__pcVisitStarted) return
+  window.__pcVisitStarted = true
+  var panel = document.getElementById('visit-map')
+  var seen = false
+  try { seen = localStorage.getItem('pc.visit') === '1' } catch (e) {}
+  if (!seen || panel) {
+    fetch('/api/visits', { method: seen ? 'GET' : 'POST', headers: { accept: 'application/json' } })
+      .then(function (response) { return response.ok ? response.json() : null })
+      .then(function (data) {
+        if (!data || typeof data.total !== 'number') return
+        try { localStorage.setItem('pc.visit', '1') } catch (e) {}
+        if (panel) paintVisits(panel, data)
+      })
+      .catch(function () {})
+  }
+
+  function countryName(code) {
+    try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code } catch (e) { return code }
+  }
+
+  function paintVisits(root, data) {
+    var total = root.querySelector('#visits')
+    if (total) total.textContent = String(data.total)
+    var list = root.querySelector('#visit-flags')
+    var rows = Array.isArray(data.countries) ? data.countries : []
+    if (list) {
+      list.replaceChildren()
+      rows.forEach(function (row) {
+        if (!row || !/^[A-Z]{2}$/.test(row.code) || !(row.count > 0)) return
+        var code = row.code.toLowerCase()
+        var li = document.createElement('li')
+        var img = document.createElement('img')
+        img.src = 'https://flagcdn.com/w40/' + code + '.png'
+        img.srcset = 'https://flagcdn.com/w80/' + code + '.png 2x'
+        img.width = 28
+        img.height = 20
+        img.alt = ''
+        var name = document.createElement('span')
+        name.className = 'visit-name'
+        name.textContent = countryName(row.code)
+        var count = document.createElement('b')
+        count.textContent = String(row.count)
+        li.append(img, name, count)
+        list.append(li)
+      })
+    }
+    root.dataset.empty = rows.length ? 'false' : 'true'
+    root.hidden = false
+  }
 })()

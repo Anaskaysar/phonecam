@@ -4,6 +4,7 @@ dist
 *.local
 .vite
 .phone-origin
+.visit-count
 dist-extension
 store/*.zip
 .test-build

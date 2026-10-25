@@ -5,7 +5,8 @@ import assert from 'node:assert/strict'
 // Cloudflare runtime classes the Durable Object touches.
 globalThis.WebSocketRequestResponsePair ??= class { constructor(request, response) { this.request = request; this.response = response } }
 
-const { default: worker, SignalRoom } = await import('../../worker/index.js')
+const { default: worker, SignalRoom, VisitCounter } = await import('../../worker/index.js')
+const { countryOf } = await import('../../worker/visits.js')
 const { roomOf } = await import('../../worker/signal.js')
 
 const SITE = 'https://phonecam.app'
@@ -41,6 +42,53 @@ function post(body, { origin = SITE, db = fakeDb(), ip = '1.2.3.4' } = {}) {
   if (origin) headers.origin = origin
   return worker.fetch(new Request(`${SITE}/api/feedback`, { method: 'POST', headers, body: JSON.stringify(body) }), env({ DB: db }))
 }
+
+test('a visit is counted once per new browser, and a read does not add another', async () => {
+  assert.equal((await get('/api/visits')).status, 503, 'no counter binding')
+
+  let total = 0
+  const visits = {
+    idFromName: () => 'site',
+    get: () => ({
+      fetch: async (request) => {
+        if (request.method === 'POST') total += 1
+        return Response.json({ total })
+      }
+    })
+  }
+  const call = (method, origin) => worker.fetch(
+    new Request(`${SITE}/api/visits`, { method, headers: origin ? { origin } : {} }),
+    env({ VISITS: visits })
+  )
+  assert.equal((await call('POST', 'https://evil.example')).status, 403)
+  assert.deepEqual(await (await call('POST', SITE)).json(), { total: 1 })
+  assert.deepEqual(await (await call('GET')).json(), { total: 1 })
+})
+
+test('VisitCounter counts real countries and ignores an unknown one', async () => {
+  assert.equal(countryOf(new Request(SITE)), '')
+  assert.equal(countryOf(new Request(SITE, { headers: { 'cf-ipcountry': 'xx' } })), '')
+  assert.equal(countryOf(new Request(SITE, { headers: { 'cf-ipcountry': 'BD' } })), 'BD')
+
+  const stored = new Map()
+  const counter = new VisitCounter({
+    storage: {
+      get: async (key) => stored.get(key),
+      put: async (key, value) => { stored.set(key, value) }
+    }
+  })
+  const post = (country) => counter.fetch(new Request(`${SITE}/api/visits`, {
+    method: 'POST',
+    headers: country ? { 'cf-ipcountry': country } : {}
+  }))
+  await post('us')
+  await post('BD')
+  await post('US')
+  await post('XX')
+  const body = await (await counter.fetch(new Request(`${SITE}/api/visits`))).json()
+  assert.equal(body.total, 4)
+  assert.deepEqual(body.countries, [{ code: 'US', count: 2 }, { code: 'BD', count: 1 }])
+})
 
 test('pages are served from static assets', async () => {
   assert.equal(await (await get('/')).text(), 'asset')

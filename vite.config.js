@@ -54,6 +54,43 @@ function guidePagesPlugin() {
   }
 }
 
+const visitCountFile = new URL('./.visit-count', import.meta.url)
+
+function visitCounterPlugin() {
+  const read = () => {
+    try {
+      const raw = fs.readFileSync(visitCountFile, 'utf8').trim()
+      if (raw.startsWith('{')) return JSON.parse(raw)
+      return { total: Number(raw) || 0, countries: {} }
+    } catch {
+      return { total: 0, countries: {} }
+    }
+  }
+  const write = (data) => fs.writeFileSync(visitCountFile, JSON.stringify(data))
+  return {
+    name: 'phonecam-visits',
+    configureServer(server) {
+      server.middlewares.use('/api/visits', (req, res) => {
+        const data = read()
+        if (req.method === 'POST') {
+          data.total += 1
+          const code = String(req.headers['cf-ipcountry'] || '').trim().toUpperCase()
+          if (/^[A-Z]{2}$/.test(code) && !['XX', 'T1', 'AP', 'EU'].includes(code)) {
+            data.countries[code] = (data.countries[code] || 0) + 1
+          }
+          write(data)
+        }
+        const countries = Object.entries(data.countries || {})
+          .map(([code, count]) => ({ code, count }))
+          .sort((a, b) => b.count - a.count || a.code.localeCompare(b.code))
+        res.setHeader('content-type', 'application/json; charset=utf-8')
+        res.setHeader('cache-control', 'no-store')
+        res.end(JSON.stringify({ total: data.total, countries }))
+      })
+    }
+  }
+}
+
 function phoneOriginPlugin() {
   return {
     name: 'phonecam-phone-origin',
@@ -85,6 +122,7 @@ export default defineConfig({
   plugins: [
     react(),
     guidePagesPlugin(),
+    visitCounterPlugin(),
     phoneOriginPlugin(),
     VitePWA({
       registerType: 'autoUpdate',

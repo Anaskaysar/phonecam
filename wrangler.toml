@@ -22,9 +22,17 @@ not_found_handling = "none"
 name = "SIGNAL"
 class_name = "SignalRoom"
 
+[[durable_objects.bindings]]
+name = "VISITS"
+class_name = "VisitCounter"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["SignalRoom"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["VisitCounter"]
 
 # TURN relay (optional). Create a TURN key in the Cloudflare dashboard
 # (Realtime > TURN Server), then:

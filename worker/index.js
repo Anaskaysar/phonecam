@@ -6,6 +6,8 @@
     GET  /api/turn      short-lived TURN relay credentials from Cloudflare Realtime
     GET  /api/feedback  average rating, count, and approved public comments
     POST /api/feedback  { rating 1-5, comment?, name?, publicOk?, website? }
+    GET  /api/visits    the visitor total, without counting this request
+    POST /api/visits    count one new browser and return the total
 
   Ratings are stored in the D1 database bound as env.DB. Until that database
   is set up, the API answers 503 and the site hides the ratings section.
@@ -14,8 +16,9 @@
 */
 
 import { SignalRoom, roomOf } from './signal.js'
+import { VisitCounter } from './visits.js'
 
-export { SignalRoom }
+export { SignalRoom, VisitCounter }
 
 // Pages allowed to use the signalling server and TURN credentials: PhoneCam itself
 // and the meeting sites the extension runs on. Browsers always send Origin on these requests.
@@ -168,6 +171,24 @@ async function submit(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url)
+
+    if (url.pathname === '/api/visits') {
+      if (!env.VISITS) return json({ error: 'Visits are not set up yet.' }, 503)
+      if (request.method !== 'GET' && request.method !== 'POST') {
+        return json({ error: 'Method not allowed.' }, 405, { allow: 'GET, POST' })
+      }
+      if (request.method === 'POST') {
+        const origin = request.headers.get('origin')
+        let sameSite = false
+        try { sameSite = !!origin && new URL(origin).host === url.host } catch { sameSite = false }
+        if (!sameSite) return json({ error: 'Not allowed.' }, 403)
+      }
+      try {
+        return await env.VISITS.get(env.VISITS.idFromName('site')).fetch(request)
+      } catch {
+        return json({ error: 'Something went wrong. Try again later.' }, 500)
+      }
+    }
 
     if (url.pathname === '/api/feedback') {
       if (!env.DB) return json({ error: 'Ratings are not set up yet.' }, 503)
