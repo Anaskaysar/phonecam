@@ -16,17 +16,8 @@ const CARRIER_ID = 'phonecam-bridge-video'
 const WIDTH = 1280
 const HEIGHT = 720
 const STALL_MS = 3000
-const MESSAGES = {
-  live: 'The phone paused. Keep PhoneCam open on the phone.',
-  connecting: 'Connecting…',
-  waiting: 'Waiting for your phone',
-  dropped: 'Phone disconnected. Waiting…',
-  reconnecting: 'Reconnecting…',
-  'in-use': 'PhoneCam is in use in another tab',
-  rejected: 'Waiting for your phone',
-  network: 'Network problem. Retrying…',
-  failed: 'Could not open the room'
-}
+// States where PhoneCam is still trying, so the card pulses. Anything else is shown still.
+const TRYING = new Set(['connecting', 'waiting', 'dropped', 'reconnecting', 'rejected', 'network', 'live'])
 
 function install() {
   if (window.__phonecamInstalled) return
@@ -126,28 +117,42 @@ function createFeed() {
   document.addEventListener('phonecam:drop', stopPump)
 
   function drawPlaceholder() {
-    ctx.fillStyle = '#0b0d11'
-    ctx.fillRect(0, 0, WIDTH, HEIGHT)
+    // Everyone in the meeting sees this card, and Meet mirrors your own preview,
+    // so it has no words and no code: a calm, symmetric "camera off" picture.
+    // The steps for pairing live in the extension popup, which only you see.
     const cx = WIDTH / 2
+    const cy = HEIGHT / 2
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 560)
+    glow.addColorStop(0, '#171b23')
+    glow.addColorStop(1, '#0b0d11')
+    ctx.fillStyle = glow
+    ctx.fillRect(0, 0, WIDTH, HEIGHT)
+
+    const trying = TRYING.has(status.code)
+    if (trying) {
+      // Two soft rings that slowly grow and fade, one after the other.
+      const period = 2800
+      for (const offset of [0, 0.5]) {
+        const t = ((performance.now() / period) + offset) % 1
+        ctx.strokeStyle = `rgba(223, 242, 90, ${(0.28 * (1 - t)).toFixed(3)})`
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.arc(cx, cy, 64 + t * 90, 0, Math.PI * 2)
+        ctx.stroke()
+      }
+    }
+
+    // The PhoneCam mark, dimmed when PhoneCam has stopped trying.
+    ctx.globalAlpha = trying ? 1 : 0.45
     ctx.fillStyle = '#dff25a'
     ctx.beginPath()
-    ctx.roundRect(cx - 40, 150, 80, 80, 22)
+    ctx.roundRect(cx - 48, cy - 48, 96, 96, 26)
     ctx.fill()
     ctx.fillStyle = '#161a04'
     ctx.beginPath()
-    ctx.arc(cx, 190, 17, 0, Math.PI * 2)
+    ctx.arc(cx, cy, 20, 0, Math.PI * 2)
     ctx.fill()
-    ctx.textAlign = 'center'
-    ctx.fillStyle = '#f4f6f8'
-    ctx.font = '700 44px system-ui, -apple-system, "Segoe UI", sans-serif'
-    // Everyone in the meeting sees this card, so it never shows a code.
-    const waiting = status.code === 'waiting' && !status.paired
-    ctx.fillText(waiting ? 'Pair your phone to start' : MESSAGES[status.code] || 'Connecting…', cx, 340)
-    ctx.fillStyle = '#a7b0bd'
-    ctx.font = '28px system-ui, -apple-system, "Segoe UI", sans-serif'
-    ctx.fillText(status.paired
-      ? 'Open PhoneCam on your phone and tap Start streaming.'
-      : 'Click the PhoneCam icon in the toolbar and scan its code with your phone.', cx, 420)
+    ctx.globalAlpha = 1
   }
 
   function tick() {

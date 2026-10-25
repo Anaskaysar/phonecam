@@ -1,0 +1,117 @@
+<!--
+{
+  "slug": "support",
+  "kicker": "Support",
+  "short": "Support",
+  "title": "PhoneCam support",
+  "h1": "Get PhoneCam working",
+  "lede": "Most problems come down to the same few things: where the picture is meant to go, a phone that went to sleep, or a network that blocks a direct connection. Find yours below. If none of it helps, email us and we’ll take a look.",
+  "description": "Help with PhoneCam: why PhoneCam isn't in your camera list, the extension, OBS, iPhone and Android tips, connection problems, and how to contact us.",
+  "og": "/guides/img/about.png",
+  "schema": "ContactPage",
+  "updated": "2026-10-24",
+  "faq": {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why doesn't PhoneCam show up as a camera on my computer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A website, even one installed as an app, can't add a camera to Windows or macOS. The installed PhoneCam app only shows the picture. To use it as a camera, install the PhoneCam browser extension for meetings in Chrome or Edge, or use OBS Virtual Camera for desktop apps such as PowerPoint, Zoom or Teams."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "I installed the extension but PhoneCam isn't in Google Meet's camera list.",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Reload the meeting tab after installing the extension. Then open the extension's popup, scan its QR code with the phone and tap Start streaming. Pick PhoneCam in the meeting's camera settings."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I contact PhoneCam support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Email kaysarulanas2@gmail.com or open an issue on GitHub at github.com/Anaskaysar/phonecam/issues. Include your phone, computer, browser and the meeting app you were using."
+        }
+      }
+    ]
+  }
+}
+-->
+<div class="box">
+  <p><strong>Contact us:</strong> email <a href="mailto:kaysarulanas2@gmail.com?subject=PhoneCam%20support">kaysarulanas2@gmail.com</a> or <a href="https://github.com/Anaskaysar/phonecam/issues">open an issue on GitHub</a>.</p>
+</div>
+
+<h2>First, pick the right way in</h2>
+<p>A web page can’t add a camera to your computer, and that includes PhoneCam installed as an app. The installed app shows the picture, but Windows and macOS won’t list it as a camera. Choose the way in that matches where the video needs to go:</p>
+<ul>
+  <li><strong>A meeting in Chrome or Edge</strong> (Google Meet, Teams, Zoom, Discord, Whereby, Jitsi or Webex in the browser): install the PhoneCam extension. It adds a camera called <strong>PhoneCam</strong>.</li>
+  <li><strong>A desktop app</strong> (PowerPoint, the Zoom or Teams app, Webex, FaceTime): use <a href="/obs-phone-camera">OBS with Virtual Camera</a>, then pick <strong>OBS Virtual Camera</strong> in the app.</li>
+  <li><strong>Nothing to install</strong>: open the receiver, choose <strong>Share a tab</strong> and share that tab in the meeting. People see a screen share, not a camera tile.</li>
+</ul>
+
+<h2>PhoneCam isn’t in the meeting’s camera list</h2>
+<ul>
+  <li>Make sure the meeting runs in Chrome, Edge, Brave or Arc. Firefox and Safari aren’t supported yet.</li>
+  <li>Reload the meeting tab after you install the extension. Tabs that were already open don’t see it.</li>
+  <li>Pair with the QR code in the <strong>extension’s popup</strong> (click the PhoneCam icon in the toolbar). The installed app and the receiver page each have their own code, so a phone streaming to them doesn’t reach the extension.</li>
+  <li>Check the camera on its own at <a href="/#/check">phonecam.app/#/check</a>. If the picture shows there, the problem is in the meeting app’s camera setting.</li>
+  <li>If you use the Zoom or Teams desktop app, the extension can’t reach it. Use OBS instead, as above.</li>
+</ul>
+
+<h2>The meeting shows the PhoneCam logo instead of you</h2>
+<p>The PhoneCam logo with a slowly pulsing ring means the meeting is connected to PhoneCam but no picture is arriving from the phone yet. The extension popup says what it is waiting for.</p>
+<ul>
+  <li>Keep the PhoneCam screen open and in front on the phone. An iPhone pauses the camera when you switch apps or lock the screen.</li>
+  <li>Tap <strong>Start</strong> on the phone again. The picture comes back on the same camera, so you don’t need to reselect it in the meeting.</li>
+  <li>If the phone was paired a long time ago or you changed browsers on it, use <strong>Pair a different phone</strong> in the extension’s popup and scan again.</li>
+</ul>
+
+<h2>The phone can’t connect</h2>
+<ul>
+  <li>Put the phone and the computer on the same Wi-Fi. That gives the fastest, most reliable connection.</li>
+  <li>Some office, school and hotel networks, and some mobile data, block direct connections. PhoneCam then sends the encrypted video through Cloudflare’s relay, which can take a few extra seconds.</li>
+  <li>A VPN on either device can block the connection. Pause it and try again.</li>
+  <li>Each QR code pairs one phone, once. If a second phone scans a code that’s already used, it won’t connect. Use <strong>New code</strong> in the extension, or reload the receiver, to get a fresh one.</li>
+</ul>
+
+<h2>The phone asks for the camera, or the picture is black</h2>
+<ul>
+  <li><strong>iPhone:</strong> Settings → Safari → Camera → Allow. If you added PhoneCam to the home screen, open it from there and allow the camera when asked.</li>
+  <li><strong>Android:</strong> in Chrome, tap the icon next to the address, then Permissions → Camera → Allow.</li>
+  <li>Close other apps that might be using the camera, such as a video call on the phone.</li>
+</ul>
+
+<h2>The picture is blurry or lags</h2>
+<ul>
+  <li>Move closer to the Wi-Fi router, or plug the computer into the network with a cable.</li>
+  <li>Choose a lower quality (480 or 720) on the phone if the network is slow.</li>
+  <li>Wipe the phone’s lens and face a window or a lamp. More tips are in <a href="/blurry-laptop-webcam">why a camera looks soft</a>.</li>
+  <li>Keep the phone on a charger for long calls. A hot phone can lower its own frame rate.</li>
+</ul>
+
+<h2>Remove PhoneCam</h2>
+<ul>
+  <li><strong>Extension:</strong> open <code>chrome://extensions</code> (or <code>edge://extensions</code>) and click <strong>Remove</strong> under PhoneCam. Its saved pairing is deleted with it.</li>
+  <li><strong>Installed app on the computer:</strong> open the app, click the menu at the top right and choose <strong>Uninstall</strong>.</li>
+  <li><strong>On the phone:</strong> press and hold the PhoneCam icon and remove it, or just close the tab.</li>
+</ul>
+
+<h2>Report a problem</h2>
+<p>Email <a href="mailto:kaysarulanas2@gmail.com?subject=PhoneCam%20issue">kaysarulanas2@gmail.com</a> or <a href="https://github.com/Anaskaysar/phonecam/issues">open a GitHub issue</a>. It helps if you include:</p>
+<ul>
+  <li>The phone and its browser (for example, iPhone 13 with Safari).</li>
+  <li>The computer and its browser (for example, Windows 11 with Chrome).</li>
+  <li>The way in you used: extension, Share a tab or OBS.</li>
+  <li>The meeting app, and what you saw. A screenshot is very helpful.</li>
+</ul>
+<p>Please don’t send pairing codes or QR codes. We never need them.</p>
+
+<h2>Privacy</h2>
+<p>The video goes from your phone to your computer over an encrypted connection. We never see it, and nothing is recorded. The full details are in the <a href="/privacy.html">privacy policy</a>.</p>
+
+<p><a class="cta" href="/#/receiver">Open the receiver</a> <a class="cta quiet" href="/guides">Read the guides</a></p>

@@ -28,7 +28,7 @@ async function open(path, viewport) {
 }
 
 const GUIDES = ['/webcam', '/use-phone-as-webcam', '/iphone-as-webcam', '/android-as-webcam', '/meeting-webcam', '/obs-phone-camera', '/blurry-laptop-webcam']
-const PAGES = ['/#/', '/#/receiver?mode=meeting', '/#/receiver?mode=share', '/#/receiver?mode=obs', '/#/camera', '/#/check', '/#/rate', '/privacy.html', '/guides', '/about', ...GUIDES]
+const PAGES = ['/#/', '/#/receiver?mode=meeting', '/#/receiver?mode=share', '/#/receiver?mode=obs', '/#/camera', '/#/check', '/#/rate', '/privacy.html', '/guides', '/about', '/support', ...GUIDES]
 
 for (const size of ['laptop', 'phone']) {
   for (const path of PAGES) {
@@ -115,7 +115,7 @@ test('Guides and About are in the nav, and lead back into the app', async () => 
 })
 
 test('every picture in the guides and About loads', async () => {
-  for (const path of ['/guides', '/about', ...GUIDES]) {
+  for (const path of ['/guides', '/about', '/support', ...GUIDES]) {
     const { page } = await open(path, 'laptop')
     await page.evaluate(async () => {
       for (const img of document.images) { img.loading = 'eager'; if (!img.complete) await new Promise((done) => { img.onload = img.onerror = done }) }
@@ -132,7 +132,7 @@ test('every picture in the guides and About loads', async () => {
 test('the sitemap lists the guides and About', async () => {
   const { page } = await open('/sitemap.xml', 'laptop')
   const xml = await (await page.request.get(`${BASE}/sitemap.xml`)).text()
-  for (const path of ['/guides', '/about', ...GUIDES]) assert.ok(xml.includes(`https://phonecam.app${path}<`), path)
+  for (const path of ['/guides', '/about', '/support', ...GUIDES]) assert.ok(xml.includes(`https://phonecam.app${path}<`), path)
   await page.context().close()
 })
 

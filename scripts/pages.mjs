@@ -99,7 +99,7 @@ function footer(content) {
     <nav class="sf-cols" aria-label="Footer">
       <div><h2>Use PhoneCam</h2>${USE_LINKS.map((item) => `<a href="${item.href}">${item.label === 'Receiver' ? 'Open the receiver' : item.label === 'Phone camera' ? 'Open the camera' : item.label}</a>`).join('')}</div>
       <div><h2>Guides</h2>${guideLinks}<a href="/guides">All guides →</a></div>
-      <div><h2>Help</h2><a href="/#/?section=how">How it works</a><a href="/#/?section=faq">Questions</a><a href="/#/rate">Rate PhoneCam</a><a href="mailto:${SUPPORT}?subject=PhoneCam%20issue">Report an issue</a></div>
+      <div><h2>Help</h2><a href="/#/?section=how">How it works</a><a href="/#/?section=faq">Questions</a><a href="/support">Support</a><a href="/#/rate">Rate PhoneCam</a><a href="mailto:${SUPPORT}?subject=PhoneCam%20issue">Report an issue</a></div>
       <div><h2>About</h2><a href="/about">About PhoneCam</a><a href="/privacy.html">Privacy</a><a href="${REPO}">Source on GitHub</a></div>
     </nav>
   </div>
@@ -290,11 +290,11 @@ ${entry.body}
   </article>
 </main>`
   const jsonLd = [
-    { '@context': 'https://schema.org', '@type': 'AboutPage', name: entry.title, url: `${SITE}${url}`, description: entry.description },
+    { '@context': 'https://schema.org', '@type': entry.schema || 'AboutPage', name: entry.title, url: `${SITE}${url}`, description: entry.description },
     breadcrumbs([{ name: entry.short || entry.title, url }])
   ]
   if (entry.faq) jsonLd.push(entry.faq)
-  return page({ headHtml: head({ title: entry.title, description: entry.description, url, image: ogImage(entry.slug), type: 'website', jsonLd }), current: entry.slug, main, content })
+  return page({ headHtml: head({ title: entry.title, description: entry.description, url, image: entry.og || ogImage(entry.slug), type: 'website', jsonLd }), current: entry.slug, main, content })
 }
 
 export function renderSitemap(content) {

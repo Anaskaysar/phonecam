@@ -41,6 +41,7 @@ export default function SiteFooter() {
             <h2>Help</h2>
             <FooterLink to="/?section=how">How it works</FooterLink>
             <FooterLink to="/?section=faq">Questions</FooterLink>
+            <a href="/support">Support</a>
             <FooterLink to="/rate">Rate PhoneCam</FooterLink>
             <a href={`mailto:${SUPPORT}?subject=PhoneCam%20issue`}>Report an issue</a>
           </div>

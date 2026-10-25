@@ -14,7 +14,7 @@ Copy these into the developer dashboard. Images are in this folder.
 - **Screenshots (1280×800):** `screenshot-1.png`, `screenshot-2.png`, `screenshot-3.png`
 - **Small promo tile (440×280):** `promo-440x280.png`
 - **Homepage URL:** https://phonecam.app
-- **Support URL:** https://github.com/Anaskaysar/phonecam/issues
+- **Support URL:** https://phonecam.app/support
 
 ### Description
 
