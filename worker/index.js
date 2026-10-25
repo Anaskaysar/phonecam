@@ -8,6 +8,7 @@
     POST /api/feedback  { rating 1-5, comment?, name?, publicOk?, website? }
     GET  /api/visits    the visitor total, without counting this request
     POST /api/visits    count one new browser and return the total
+    anything else that isn't a file: the 404 page in worker/notfound.js
 
   Ratings are stored in the D1 database bound as env.DB. Until that database
   is set up, the API answers 503 and the site hides the ratings section.
@@ -20,6 +21,7 @@
 
 import { SignalRoom, roomOf } from './signal.js'
 import { VisitCounter } from './visits.js'
+import { notFound } from './notfound.js'
 
 export { SignalRoom, VisitCounter }
 
@@ -247,8 +249,13 @@ export default {
       }
     }
 
-    if (url.pathname.startsWith('/api/')) return json({ error: 'Not found.' }, 404)
+    if (url.pathname.startsWith('/api/')) {
+      return json({ error: 'Not found.', hint: 'There is no admin API here. There never was. Go outside, it’s nice out.' }, 404)
+    }
 
-    return env.ASSETS.fetch(request)
+    // Pages that don't exist get the Halloween 404 (worker/notfound.js).
+    const response = await env.ASSETS.fetch(request)
+    if (response.status === 404 && (request.method === 'GET' || request.method === 'HEAD')) return notFound(request)
+    return response
   }
 }

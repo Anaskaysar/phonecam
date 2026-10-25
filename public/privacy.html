@@ -12,6 +12,7 @@
     body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
     main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
     a { color: var(--accent); }
+    button.mail-link { padding: 0; border: 0; background: none; color: var(--accent); font: inherit; cursor: pointer; }
     h1 { font-size: clamp(32px, 6vw, 44px); line-height: 1.05; letter-spacing: -0.03em; margin: 24px 0 8px; }
     h2 { font-size: 20px; margin: 32px 0 8px; letter-spacing: -0.01em; }
     p, li { color: var(--muted); text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
@@ -56,7 +57,7 @@
 
     <h2>Ratings and comments</h2>
     <p>If you choose to rate PhoneCam on phonecam.app, we store your star rating, your comment and name if you add them, whether you agreed to show them on the site, and the date. To stop the same person rating many times a day, we also store a one-way hash of your network address combined with the date. The address itself is not stored and the hash can’t be turned back into it.</p>
-    <p>Comments appear on the website only if you tick “Show my comment and name on the PhoneCam website”, and only after we read them. To have your rating or comment removed, <a href="mailto:kaysarulanas2@gmail.com?subject=PhoneCam%20issue">email us</a> with the date and the words you used.</p>
+    <p>Comments appear on the website only if you tick “Show my comment and name on the PhoneCam website”, and only after we read them. To have your rating or comment removed, <button type="button" class="mail-link" data-mail="issue">email us</button> with the date and the words you used.</p>
 
     <h2>Where the extension runs</h2>
     <p>The extension runs only on the meeting sites listed in the Chrome Web Store page (such as Google Meet, Microsoft Teams, Zoom, Discord, Whereby, Jitsi and Webex) and on phonecam.app. There it adds PhoneCam to the list of cameras. It does not read, change or send the content of those pages.</p>
@@ -65,7 +66,7 @@
     <p>PhoneCam does not knowingly collect information from anyone, including children.</p>
 
     <h2>Changes and contact</h2>
-    <p>If this policy changes, the new version will be posted on this page with a new date. Questions: <a href="mailto:kaysarulanas2@gmail.com?subject=PhoneCam">email us</a>.</p>
+    <p>If this policy changes, the new version will be posted on this page with a new date. Questions: <button type="button" class="mail-link" data-mail="privacy">email us</button>.</p>
   </main>
   <script src="/help.js" defer></script>
 </body>

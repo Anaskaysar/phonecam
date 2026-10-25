@@ -28,7 +28,7 @@
     '.help-fine{margin:8px 0 0;color:#8b97a8;font-size:12px;line-height:1.45;text-align:start;hyphens:manual}',
     '.help-fine a{color:#c5ced8}',
     '.help-split{height:1px;margin:14px 0;background:rgba(255,255,255,.08)}',
-    '.help-report{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;padding:10px 16px}',
+    '.help-report{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;padding:10px 16px;font:inherit}',
     '@media (max-width:420px){.help-row{padding-left:12px}.help-row button{padding-inline:12px}}'
   ].join('')
   document.head.appendChild(style)
@@ -50,7 +50,7 @@
     '<p class="help-fine">Opens your email app. <a href="/privacy.html">Privacy</a>.</p>',
     '</form>',
     '<div class="help-split"></div>',
-    '<a class="help-report" href="#">Report an issue</a>',
+    '<button type="button" class="help-report">Report an issue</button>',
     '<p class="help-fine">The email includes this page, so we can see where it happened.</p>',
     '</div>',
     '<button type="button" class="help-fab" aria-expanded="false" aria-controls="help-pop">',
@@ -75,17 +75,24 @@
     return match ? match[1] : ''
   }
 
-  function issueMailto() {
+  function openMail(subject, body) {
+    var href = 'mailto:' + SUPPORT + '?subject=' + encodeURIComponent(subject)
+    if (body) href += '&body=' + encodeURIComponent(body)
+    var link = document.createElement('a')
+    link.href = href
+    link.click()
+  }
+
+  function issueBody() {
     var lines = ['Page: ' + location.href]
     var current = version()
     if (current) lines.push('Version: ' + current)
     lines.push('', 'What happened:', '')
-    return 'mailto:' + SUPPORT + '?subject=' + encodeURIComponent('PhoneCam issue') + '&body=' + encodeURIComponent(lines.join('\n'))
+    return lines.join('\n')
   }
 
   function place() {
     dock.hidden = onCamera()
-    report.href = issueMailto()
     if (onCamera() && open) setOpen(false)
   }
 
@@ -94,7 +101,6 @@
     pop.hidden = !open
     fab.setAttribute('aria-expanded', open ? 'true' : 'false')
     if (open) {
-      report.href = issueMailto()
       var field = form.elements.message
       if (field) field.focus()
     }
@@ -117,14 +123,22 @@
       fab.focus()
     }
   })
+  report.addEventListener('click', function () {
+    openMail('PhoneCam issue', issueBody())
+  })
+  document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('[data-mail]')
+    if (!trigger || dock.contains(trigger)) return
+    var kind = trigger.getAttribute('data-mail')
+    if (kind === 'issue') openMail('PhoneCam issue', issueBody())
+    else if (kind === 'support') openMail('PhoneCam support')
+    else openMail('PhoneCam')
+  })
   form.addEventListener('submit', function (event) {
     event.preventDefault()
     var email = String(form.elements.email.value || '').trim()
     var message = String(form.elements.message.value || '').trim()
-    var body = 'From: ' + email + '\n\n' + message + '\n\nPage: ' + location.href
-    var link = document.createElement('a')
-    link.href = 'mailto:' + SUPPORT + '?subject=' + encodeURIComponent('PhoneCam') + '&body=' + encodeURIComponent(body)
-    link.click()
+    openMail('PhoneCam', 'From: ' + email + '\n\n' + message + '\n\nPage: ' + location.href)
   })
 
   window.addEventListener('hashchange', place)

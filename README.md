@@ -227,6 +227,10 @@ Only rows with `public_ok = 1` and `approved = 1` appear on the site (the newest
 
 One rating per visitor per day; the Worker stores a hash of the network address and the date, never the address.
 
+## The 404 page
+
+Any address the site doesn't have, like `/admin`, `/.env` or `/wp-login.php`, gets a Halloween 404 from `worker/notfound.js` (status 404, not indexed). A ghost with a torch points the way home, and the joke fits what was asked for: admin pages, secret files, WordPress, or a plain typo. Each wrong turn in the same browser makes it sillier, up to a "Professional Wanderer" trophy on the fifth. That count lives in the visitor's own browser; the server stores nothing. Unknown app addresses (`#/admin`) go there too.
+
 ## Color
 
 The home page wears a new color edition on each visit and keeps it on refresh. **Black & white** in the nav turns that off until you switch color back on. The editions are in `src/lib/color-edition.js`.

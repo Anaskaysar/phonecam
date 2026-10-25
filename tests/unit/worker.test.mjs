@@ -8,6 +8,7 @@ globalThis.WebSocketRequestResponsePair ??= class { constructor(request, respons
 const { default: worker, SignalRoom, VisitCounter } = await import('../../worker/index.js')
 const { countryOf } = await import('../../worker/visits.js')
 const { roomOf } = await import('../../worker/signal.js')
+const { kindOf, notFoundPage } = await import('../../worker/notfound.js')
 
 const SITE = 'https://phonecam.app'
 const ROOM = 'abcdefghijklmnop'
@@ -222,6 +223,34 @@ test('ratings: the table is created on first use', async () => {
   await worker.fetch(new Request(`${SITE}/api/feedback`), env({ DB: db }))
   await worker.fetch(new Request(`${SITE}/api/feedback`), env({ DB: db }))
   assert.deepEqual(db.batches, [2], 'once per database, both statements')
+})
+
+test('a missing page gets the 404 page, with the joke matched to the path', async () => {
+  const missing = { fetch: async () => new Response('nope', { status: 404 }) }
+  const response = await worker.fetch(new Request(`${SITE}/admin`), { ASSETS: missing })
+  assert.equal(response.status, 404)
+  assert.match(response.headers.get('content-type'), /text\/html/)
+  assert.match(response.headers.get('content-security-policy'), /script-src 'nonce-/)
+  const html = await response.text()
+  assert.match(html, /wrong place, bro/)
+  assert.match(html, /<meta name="robots" content="noindex">/)
+  const head = await worker.fetch(new Request(`${SITE}/admin`, { method: 'HEAD' }), { ASSETS: missing })
+  assert.equal(head.status, 404)
+
+  assert.equal(kindOf('/admin'), 'admin')
+  assert.equal(kindOf('/login'), 'admin')
+  assert.equal(kindOf('/.env'), 'secrets')
+  assert.equal(kindOf('/.git/config'), 'secrets')
+  assert.equal(kindOf('/db.sql'), 'secrets')
+  assert.equal(kindOf('/wp-login.php'), 'wordpress')
+  assert.equal(kindOf('/xmlrpc.php'), 'wordpress')
+  assert.equal(kindOf('/webcamm'), 'lost')
+})
+
+test('the 404 page never echoes the path as HTML', () => {
+  const html = notFoundPage('/<script>alert(1)</script>"onmouseover=', 'n0nce')
+  assert.ok(!html.includes('<script>alert(1)'))
+  assert.match(html, /&lt;script&gt;alert\(1\)/)
 })
 
 test('there is no admin API on the public site', async () => {

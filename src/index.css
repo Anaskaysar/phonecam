@@ -1149,8 +1149,9 @@ a.secondary { color: var(--ink); text-decoration: none; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.sf-cols a { color: #8391a3; text-decoration: none; font-size: 14px; width: fit-content; }
-.sf-cols a:hover { color: var(--ink); }
+.sf-cols a, .sf-cols button[data-mail] { color: #8391a3; text-decoration: none; font-size: 14px; width: fit-content; }
+.sf-cols button[data-mail] { padding: 0; border: 0; background: none; font: inherit; text-align: start; cursor: pointer; }
+.sf-cols a:hover, .sf-cols button[data-mail]:hover { color: var(--ink); }
 .sf-cols a[aria-current="page"] { color: var(--accent); }
 .sf-bottom {
   display: flex;
@@ -1225,6 +1226,7 @@ a.secondary { color: var(--ink); text-decoration: none; }
 .lp .lp-empty,
 .lp .sf-brand p,
 .lp .sf-cols a,
+.lp .sf-cols button[data-mail],
 .lp .sf-bottom,
 .lp .site-nav-links a,
 .lp .site-nav-menu a:not(.lp-btn),
@@ -1233,7 +1235,8 @@ a.secondary { color: var(--ink); text-decoration: none; }
 .lp .site-nav-links a.on,
 .lp .site-nav-menu a:hover,
 .lp .site-nav-menu a.on,
-.lp .sf-cols a:hover { color: var(--ce-ink); }
+.lp .sf-cols a:hover,
+.lp .sf-cols button[data-mail]:hover { color: var(--ce-ink); }
 .lp .lp-cell,
 .lp .lp-faq details,
 .lp .quote,

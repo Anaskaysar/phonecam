@@ -36,7 +36,19 @@ function guidePagesPlugin() {
         }
         const name = pathname.slice(1)
         const file = name === 'sitemap.xml' ? 'sitemap.xml' : pagePaths().includes(name) ? `${name}/index.html` : null
-        if (!file) return next()
+        if (!file) {
+          // A page address that doesn't exist gets the Halloween 404, as on phonecam.app
+          // (Vite would otherwise hand back the app, which looks like the home page).
+          const wantsPage = req.method === 'GET' && (req.headers.accept || '').includes('text/html')
+          const isApp = pathname === '/' || pathname === '/index.html'
+          const isTool = pathname.startsWith('/@') || pathname.startsWith('/node_modules/') || pathname.startsWith('/src/') || pathname.startsWith('/api/')
+          const isFile = fs.existsSync(new URL(`./public${pathname}`, import.meta.url))
+          if (!wantsPage || isApp || isTool || isFile) return next()
+          const { notFoundPage } = await server.ssrLoadModule('/worker/notfound.js')
+          res.statusCode = 404
+          res.setHeader('content-type', 'text/html; charset=utf-8')
+          return res.end(notFoundPage(pathname, 'dev'))
+        }
         res.setHeader('content-type', file.endsWith('.xml') ? 'application/xml' : 'text/html; charset=utf-8')
         res.end(renderAll()[file])
       })

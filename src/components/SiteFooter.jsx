@@ -4,7 +4,6 @@ import Logo from './Logo.jsx'
 
 const VERSION = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : ''
 const REPO = 'https://github.com/Anaskaysar/phonecam'
-const SUPPORT = 'kaysarulanas2@gmail.com'
 
 function FooterLink({ to, children }) {
   const location = useLocation()
@@ -43,7 +42,7 @@ export default function SiteFooter() {
             <FooterLink to="/?section=faq">Questions</FooterLink>
             <a href="/support">Support</a>
             <FooterLink to="/rate">Rate PhoneCam</FooterLink>
-            <a href={`mailto:${SUPPORT}?subject=PhoneCam%20issue`}>Report an issue</a>
+            <button type="button" data-mail="issue">Report an issue</button>
           </div>
           <div>
             <h2>About</h2>

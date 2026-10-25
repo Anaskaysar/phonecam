@@ -24,6 +24,7 @@ body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; back
 p, li, blockquote, figcaption, dd { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
 main { flex: 1; }
 a { color: var(--accent); }
+button.mail-link { padding: 0; border: 0; background: none; color: var(--accent); font: inherit; cursor: pointer; }
 img { max-width: 100%; height: auto; display: block; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 ::selection { background: var(--accent); color: var(--accent-ink); }
@@ -353,8 +354,9 @@ img { max-width: 100%; height: auto; display: block; }
 .sf-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
 .sf-cols > div { display: grid; gap: 10px; align-content: start; }
 .sf-cols h2 { margin: 0 0 4px; color: var(--ink); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-.sf-cols a { color: var(--soft); text-decoration: none; font-size: 14px; width: fit-content; }
-.sf-cols a:hover { color: var(--ink); }
+.sf-cols a, .sf-cols button[data-mail] { color: var(--soft); text-decoration: none; font-size: 14px; width: fit-content; }
+.sf-cols button[data-mail] { padding: 0; border: 0; background: none; font: inherit; text-align: start; cursor: pointer; }
+.sf-cols a:hover, .sf-cols button[data-mail]:hover { color: var(--ink); }
 .sf-bottom {
   display: flex;
   flex-wrap: wrap;

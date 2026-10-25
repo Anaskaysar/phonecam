@@ -201,10 +201,36 @@ test('a rating goes through and shows on the home page once approved', { timeout
   await page.context().close()
 })
 
-test('the site has no admin page', async () => {
+test('the site has no admin page, just a ghost', async () => {
   const { page } = await open('/#/admin', 'laptop')
-  await page.waitForURL(/#\/$/)
+  await page.waitForURL(`${BASE}/admin`)
+  assert.match(await page.textContent('h1'), /wrong place, bro/)
   assert.equal(await page.locator('input[type="password"]').count(), 0)
-  assert.equal((await page.request.get(`${BASE}/api/admin/feedback`)).status(), 404)
+  const api = await page.request.get(`${BASE}/api/admin/feedback`)
+  assert.equal(api.status(), 404)
   await page.context().close()
+})
+
+test('the 404 page fits the request, gets sillier, and leads home', async () => {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 860 } })
+  const page = await context.newPage()
+  const cases = [['/.env', /Looking for secrets|Still digging/], ['/wp-login.php', /isn’t WordPress|Still not WordPress/], ['/webcamm', /trick-or-treating|Lost again/]]
+  for (const [path, title] of cases) {
+    const response = await page.goto(`${BASE}${path}`)
+    assert.equal(response.status(), 404, path)
+    assert.match(await page.textContent('h1'), title, path)
+  }
+  assert.equal(await page.locator('.site-nav .nav-drop').count(), 1, 'the same nav as the rest of the site')
+  for (const [width, height] of [[1512, 730], [1280, 650], [390, 664]]) {
+    await page.setViewportSize({ width, height })
+    assert.ok(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1), `fits ${width}×${height} without scrolling`)
+  }
+  await page.setViewportSize({ width: 1280, height: 860 })
+  await page.goto(`${BASE}/nope-1`)
+  await page.goto(`${BASE}/nope-2`)
+  assert.match(await page.textContent('h1'), /Professional Wanderer/, 'fifth wrong turn')
+  assert.equal(await page.locator('.tally line').count(), 5)
+  await page.getByRole('link', { name: /Take me home/ }).click()
+  await page.waitForURL(`${BASE}/`)
+  await context.close()
 })

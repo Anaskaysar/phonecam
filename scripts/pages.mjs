@@ -13,11 +13,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { LOGO, USE_LINKS, nav, NAV_SCRIPT, THEME_SCRIPT } from './site-nav.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 export const SITE = 'https://phonecam.app'
 const REPO = 'https://github.com/Anaskaysar/phonecam'
-const SUPPORT = 'kaysarulanas2@gmail.com'
 
 const esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const strip = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim()
@@ -43,50 +43,6 @@ export function loadContent() {
   return { guides, pages, version: JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version }
 }
 
-const LOGO = '<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" style="fill:var(--accent)"/><circle cx="16" cy="16" r="6.5" style="fill:var(--accent-ink)"/><circle cx="23.5" cy="9.5" r="1.7" style="fill:var(--accent-ink)"/></svg>'
-
-const USE_LINKS = [
-  { href: '/#/receiver', label: 'Receiver', note: 'Pair your phone and pick a way in' },
-  { href: '/#/camera', label: 'Phone camera', note: 'Open this on your phone' },
-  { href: '/#/receiver?mode=meeting', label: 'Browser extension', note: 'PhoneCam in Meet, Teams and Zoom' },
-  { href: '/#/check', label: 'Check the extension', note: 'Preview what the meeting sees' }
-]
-
-// The same items as src/components/SiteNav.jsx. Keep the two in step.
-function nav(current) {
-  const link = (href, label, key) => `<a href="${href}"${current === key ? ' class="on" aria-current="page"' : ''}>${label}</a>`
-  const useMenu = USE_LINKS.map((item) => `<a href="${item.href}"><strong>${item.label}</strong><span>${item.note}</span></a>`).join('')
-  return `<header class="site-nav">
-  <div class="site-nav-bar">
-    <a class="brand" href="/" aria-label="PhoneCam home">${LOGO}PhoneCam</a>
-    <nav class="site-nav-links" aria-label="Main">
-      <details class="nav-drop">
-        <summary>Use PhoneCam</summary>
-        <div class="nav-drop-menu">${useMenu}</div>
-      </details>
-      ${link('/#/?section=how', 'How it works', 'how')}
-      ${link('/guides', 'Guides', 'guides')}
-      ${link('/about', 'About', 'about')}
-    </nav>
-    <div class="site-nav-actions">
-      <a class="lp-btn primary site-nav-cta" href="/#/receiver">Get started</a>
-      <details class="nav-mobile">
-        <summary aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
-        <nav class="site-nav-menu" aria-label="Main">
-          <p class="menu-group">Use PhoneCam</p>
-          ${USE_LINKS.map((item) => `<a href="${item.href}">${item.label}</a>`).join('')}
-          <p class="menu-group">Learn</p>
-          ${link('/#/?section=how', 'How it works', 'how')}
-          ${link('/guides', 'Guides', 'guides')}
-          ${link('/about', 'About', 'about')}
-          <a class="lp-btn primary" href="/#/receiver">Get started</a>
-        </nav>
-      </details>
-    </div>
-  </div>
-</header>`
-}
-
 // The same columns as src/components/SiteFooter.jsx. Keep the two in step.
 function footer(content) {
   const guideLinks = content.guides.slice(0, 5).map((guide) => `<a href="/${guide.slug}">${esc(guide.short)}</a>`).join('')
@@ -99,7 +55,7 @@ function footer(content) {
     <nav class="sf-cols" aria-label="Footer">
       <div><h2>Use PhoneCam</h2>${USE_LINKS.map((item) => `<a href="${item.href}">${item.label === 'Receiver' ? 'Open the receiver' : item.label === 'Phone camera' ? 'Open the camera' : item.label}</a>`).join('')}</div>
       <div><h2>Guides</h2>${guideLinks}<a href="/guides">All guides →</a></div>
-      <div><h2>Help</h2><a href="/#/?section=how">How it works</a><a href="/#/?section=faq">Questions</a><a href="/support">Support</a><a href="/#/rate">Rate PhoneCam</a><a href="mailto:${SUPPORT}?subject=PhoneCam%20issue">Report an issue</a></div>
+      <div><h2>Help</h2><a href="/#/?section=how">How it works</a><a href="/#/?section=faq">Questions</a><a href="/support">Support</a><a href="/#/rate">Rate PhoneCam</a><button type="button" data-mail="issue">Report an issue</button></div>
       <div><h2>About</h2><a href="/about">About PhoneCam</a><a href="/privacy.html">Privacy</a><a href="${REPO}">Source on GitHub</a></div>
     </nav>
   </div>
@@ -131,19 +87,7 @@ function head({ title, description, url, image, type = 'article', jsonLd = [] })
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
   <link rel="stylesheet" href="/site.css">
-  <script>
-    // Same accent color the visitor picked in the app (Settings → Color).
-    (function () {
-      var themes = { sky: ['#7cc4ff', '#04213b'], coral: ['#ff8f6e', '#2b0c03'], violet: ['#b8a3ff', '#170b38'], mint: ['#6fe3b4', '#03261a'] }
-      try {
-        var picked = themes[localStorage.getItem('pc.theme')]
-        if (picked) {
-          document.documentElement.style.setProperty('--accent', picked[0])
-          document.documentElement.style.setProperty('--accent-ink', picked[1])
-        }
-      } catch (e) {}
-    })()
-  </script>
+  <script>${THEME_SCRIPT}</script>
 ${jsonLd.map((data) => `  <script type="application/ld+json">${JSON.stringify(data)}</script>`).join('\n')}`
 }
 
@@ -158,17 +102,7 @@ ${nav(current)}
 ${main}
 ${footer(content)}
 <script src="/help.js" defer></script>
-<script>
-  // Close the nav menus after a choice, on Escape, or when clicking elsewhere.
-  document.addEventListener('click', function (event) {
-    document.querySelectorAll('details.nav-drop[open], details.nav-mobile[open]').forEach(function (menu) {
-      if (!menu.contains(event.target) || event.target.closest('a')) menu.removeAttribute('open')
-    })
-  })
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') document.querySelectorAll('details[open]').forEach(function (menu) { menu.removeAttribute('open') })
-  })
-</script>
+<script>${NAV_SCRIPT}</script>
 </body>
 </html>
 `
