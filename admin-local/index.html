@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>PhoneCam admin</title>
+<style>
+  :root { --bg: #0b0d11; --raise: #151922; --card: #0f1218; --ink: #f4f6f8; --muted: #a7b0bd; --faint: #6f7d90; --line: rgba(255,255,255,.12); --accent: #dff25a; --accent-ink: #161a04; --wait: #f0b429; --live: #ff4b63; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(900px 500px at 70% -10%, rgba(223,242,90,.10), transparent 70%), var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100vh; }
+  button { font: inherit; cursor: pointer; }
+  button:disabled { opacity: .55; cursor: default; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px clamp(16px, 4vw, 40px); border-bottom: 1px solid rgba(255,255,255,.06); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; font-size: 18px; }
+  .brand b { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); position: relative; }
+  .brand b::before { content: ''; position: absolute; left: 6px; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-ink); }
+  .brand b::after { content: ''; position: absolute; right: 5px; top: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-ink); }
+  .pill { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; background: rgba(255,255,255,.07); color: var(--muted); }
+  .pill.live { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 16px 60px; display: grid; gap: 18px; }
+  h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); letter-spacing: -.04em; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .stats div, .spread { padding: 16px; border-radius: 18px; background: var(--raise); border: 1px solid var(--line); }
+  .stats div { display: grid; gap: 2px; }
+  .stats strong { font-size: 30px; letter-spacing: -.04em; }
+  .stats span { color: var(--muted); font-size: 13px; }
+  .stats .wait { border-color: color-mix(in srgb, var(--wait) 55%, transparent); }
+  .stats .wait strong { color: var(--wait); }
+  .spread { display: grid; gap: 6px; }
+  .row { display: grid; grid-template-columns: 44px 1fr 40px; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+  .row i { display: block; height: 8px; min-width: 2px; border-radius: 99px; background: var(--accent); }
+  .row b { text-align: right; color: var(--ink); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tabs button, .btn { border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-weight: 650; padding: 8px 14px; font-size: 14px; }
+  .tabs button { color: var(--muted); }
+  .tabs button[aria-selected="true"] { background: rgba(255,255,255,.08); color: var(--ink); border-color: rgba(255,255,255,.22); }
+  .tabs small { margin-left: 4px; opacity: .7; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border: 0; }
+  .btn.danger { background: var(--live); color: #fff; border: 0; }
+  .list { display: grid; gap: 10px; }
+  article { display: grid; gap: 10px; padding: 18px; border-radius: 18px; background: var(--card); border: 1px solid rgba(255,255,255,.08); }
+  article.shown { border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+  article .top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  article time { margin-left: auto; color: var(--faint); font-size: 13px; }
+  .stars { color: var(--accent); letter-spacing: 2px; font-size: 16px; }
+  .stars span { color: #3a4150; }
+  .badge { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: rgba(255,255,255,.06); color: var(--muted); }
+  .badge.wait { background: color-mix(in srgb, var(--wait) 18%, transparent); color: var(--wait); }
+  .badge.on { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+  blockquote { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+  .who, .fine { margin: 0; color: var(--faint); font-size: 13px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .empty { padding: 28px; text-align: center; border: 1px dashed var(--line); border-radius: 18px; color: var(--muted); }
+  .error { margin: 0; padding: 12px 16px; border-radius: 14px; background: color-mix(in srgb, var(--live) 14%, transparent); color: #ffc2cb; }
+  @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } article time { margin-left: 0; width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b></b>PhoneCam admin <span class="pill" id="source">…</span></div>
+  <button class="btn" id="refresh" type="button">Refresh</button>
+</header>
+<main>
+  <h1>Ratings and testimonials</h1>
+  <p class="error" id="error" hidden></p>
+  <section class="stats" id="stats" aria-label="Totals"></section>
+  <section class="spread" id="spread" aria-label="Ratings by stars"></section>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="list" id="list"><p class="empty">Loading ratings… (Wrangler takes a few seconds)</p></div>
+  <p class="fine">The home page shows the newest 12 approved comments and updates within 30 seconds. This page runs only on this computer.</p>
+</main>
+<script>
+  // The key from the link the tool printed. It stays in this tab only.
+  const fromLink = new URLSearchParams(location.hash.slice(1)).get('key')
+  if (fromLink) { sessionStorage.setItem('pc.admin.key', fromLink); history.replaceState(null, '', '/') }
+  const KEY = sessionStorage.getItem('pc.admin.key') || ''
+
+  const FILTERS = [
+    { id: 'waiting', label: 'Waiting', test: (r) => r.publicOk && r.comment && !r.approved },
+    { id: 'shown', label: 'On the site', test: (r) => r.publicOk && r.comment && r.approved },
+    { id: 'all', label: 'All ratings', test: () => true }
+  ]
+  let data = null
+  let filter = 'waiting'
+  let busy = 0
+  let confirming = 0
+
+  // Comments come from strangers: everything goes in as text, never as HTML.
+  function el(tag, props = {}, ...children) {
+    const node = document.createElement(tag)
+    for (const [key, value] of Object.entries(props)) {
+      if (key === 'class') node.className = value
+      else if (key.startsWith('on')) node.addEventListener(key.slice(2), value)
+      else if (value !== false && value != null) node.setAttribute(key, value === true ? '' : value)
+    }
+    for (const child of children.flat()) if (child != null && child !== false) node.append(child instanceof Node ? child : String(child))
+    return node
+  }
+
+  function stars(n) {
+    return el('span', { class: 'stars', role: 'img', 'aria-label': `${n} out of 5 stars` }, '★'.repeat(n), el('span', {}, '★'.repeat(5 - n)))
+  }
+
+  function when(value) {
+    const date = new Date(String(value).replace(' ', 'T') + 'Z')
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+  }
+
+  async function api(options = {}) {
+    const response = await fetch('/api/feedback', { ...options, headers: { 'x-admin-key': KEY, ...(options.body ? { 'content-type': 'application/json' } : {}) } })
+    const body = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(body.error || 'Something went wrong.')
+    return body
+  }
+
+  function showError(message) {
+    const box = document.getElementById('error')
+    box.textContent = message || ''
+    box.hidden = !message
+  }
+
+  async function load() {
+    const button = document.getElementById('refresh')
+    button.disabled = true
+    button.textContent = 'Loading…'
+    try {
+      data = await api()
+      showError('')
+    } catch (error) {
+      showError(error.message)
+    } finally {
+      button.disabled = false
+      button.textContent = 'Refresh'
+      render()
+    }
+  }
+
+  async function act(id, action) {
+    busy = id
+    render()
+    try {
+      await api({ method: 'POST', body: JSON.stringify({ id, action }) })
+      confirming = 0
+      await load()
+    } catch (error) {
+      showError(error.message)
+    } finally {
+      busy = 0
+      render()
+    }
+  }
+
+  function card(r) {
+    const status = !r.comment ? 'Stars only' : !r.publicOk ? 'Private' : r.approved ? 'On the site' : 'Waiting'
+    const actions = el('div', { class: 'actions' })
+    const off = busy === r.id
+    if (r.publicOk && r.comment) {
+      actions.append(r.approved
+        ? el('button', { class: 'btn', type: 'button', disabled: off, onclick: () => act(r.id, 'hide') }, 'Hide from site')
+        : el('button', { class: 'btn primary', type: 'button', disabled: off, onclick: () => act(r.id, 'approve') }, 'Show on site'))
+    }
+    if (confirming === r.id) {
+      actions.append(
+        el('button', { class: 'btn danger', type: 'button', disabled: off, onclick: () => act(r.id, 'delete') }, 'Delete for good'),
+        el('button', { class: 'btn', type: 'button', onclick: () => { confirming = 0; render() } }, 'Keep')
+      )
+    } else {
+      actions.append(el('button', { class: 'btn', type: 'button', disabled: off, onclick: () => { confirming = r.id; render() } }, 'Delete'))
+    }
+    return el('article', { class: r.approved && r.publicOk ? 'shown' : '' },
+      el('div', { class: 'top' }, stars(r.rating), el('span', { class: `badge ${status === 'Waiting' ? 'wait' : status === 'On the site' ? 'on' : ''}` }, status), el('time', { datetime: r.createdAt }, when(r.createdAt))),
+      r.comment ? el('blockquote', {}, r.comment) : el('p', { class: 'fine' }, 'No comment.'),
+      el('p', { class: 'who' }, `${r.name || 'No name'} · #${r.id}${!r.publicOk && r.comment ? ' · did not ask to be shown' : ''}`),
+      actions)
+  }
+
+  function render() {
+    document.getElementById('source').textContent = data?.source || (KEY ? '…' : 'no key')
+    document.getElementById('source').className = data?.source?.includes('live') ? 'pill live' : 'pill'
+    if (!KEY) {
+      showError('Open the link the admin tool printed in the terminal (it has the key).')
+      document.getElementById('list').replaceChildren()
+      return
+    }
+    if (!data) return
+    const stats = document.getElementById('stats')
+    stats.replaceChildren(
+      el('div', {}, el('strong', {}, data.count), el('span', {}, 'ratings')),
+      el('div', {}, el('strong', {}, data.average ? data.average.toFixed(1) : '–'), el('span', {}, 'average')),
+      el('div', { class: data.waiting ? 'wait' : '' }, el('strong', {}, data.waiting), el('span', {}, 'waiting for you')),
+      el('div', {}, el('strong', {}, data.shown), el('span', {}, 'on the site')))
+    const top = Math.max(1, ...data.stars)
+    document.getElementById('spread').replaceChildren(...[5, 4, 3, 2, 1].map((s) =>
+      el('div', { class: 'row' }, el('span', {}, `${s} ★`), el('i', { style: `width:${(data.stars[s - 1] / top) * 100}%` }), el('b', {}, data.stars[s - 1]))))
+    document.getElementById('tabs').replaceChildren(...FILTERS.map((f) =>
+      el('button', { type: 'button', role: 'tab', 'aria-selected': String(filter === f.id), onclick: () => { filter = f.id; confirming = 0; render() } },
+        f.label, el('small', {}, data.items.filter(f.test).length))))
+    const rule = FILTERS.find((f) => f.id === filter)
+    const rows = data.items.filter(rule.test)
+    document.getElementById('list').replaceChildren(...(rows.length ? rows.map(card) : [el('p', { class: 'empty' },
+      data.empty ? 'No ratings yet. The table appears after the first rating.' : filter === 'waiting' ? 'Nothing waiting. New comments people want shown appear here.' : 'Nothing here yet.')]))
+  }
+
+  document.getElementById('refresh').addEventListener('click', load)
+  render()
+  if (KEY) load()
+</script>
+</body>
+</html>
