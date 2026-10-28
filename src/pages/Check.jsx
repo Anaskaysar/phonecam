@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import Status from '../components/Status.jsx'
 import SiteNav from '../components/SiteNav.jsx'
 import SiteFooter from '../components/SiteFooter.jsx'
-import { PHONECAM_DEVICE_ID } from '../lib/extension.js'
+import { EXTENSION_STORE_URL, PHONECAM_DEVICE_ID } from '../lib/extension.js'
 
 export default function Check() {
   const [found, setFound] = useState(null)
@@ -65,7 +65,7 @@ export default function Check() {
         <h1 id="check-title" className="lp-title">Check the extension</h1>
         <p className="check-lede">
           {found === false
-            ? 'This browser does not show a PhoneCam camera yet. Install the extension from the receiver page, then reload this page.'
+            ? 'This browser does not show a PhoneCam camera yet. Add the extension from the Chrome Web Store, then reload this page.'
             : 'Preview what a meeting will see when you pick PhoneCam as the camera.'}
         </p>
         <Status className="pill check-status" text={state.text} state={state.state} />
@@ -76,7 +76,7 @@ export default function Check() {
         {error ? <p className="warn" role="alert">{error}</p> : null}
         <div className="row-actions">
           {found === false ? (
-            <Link className="lp-btn primary" to="/receiver">Get the extension</Link>
+            <a className="lp-btn primary" href={EXTENSION_STORE_URL} target="_blank" rel="noopener">Add to Chrome</a>
           ) : previewing ? (
             <button type="button" className="lp-btn" onClick={stop}>Stop preview</button>
           ) : (

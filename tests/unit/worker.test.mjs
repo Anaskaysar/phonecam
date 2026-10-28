@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 globalThis.WebSocketRequestResponsePair ??= class { constructor(request, response) { this.request = request; this.response = response } }
 
 const { default: worker, SignalRoom, VisitCounter } = await import('../../worker/index.js')
-const { countryOf } = await import('../../worker/visits.js')
+const { countryOf, LIVE_MS } = await import('../../worker/visits.js')
 const { roomOf } = await import('../../worker/signal.js')
 const { kindOf, notFoundPage } = await import('../../worker/notfound.js')
 
@@ -78,7 +78,10 @@ test('VisitCounter counts real countries and ignores an unknown one', async () =
   const counter = new VisitCounter({
     storage: {
       get: async (key) => stored.get(key),
-      put: async (key, value) => { stored.set(key, value) }
+      put: async (key, value) => {
+        if (typeof key === 'object') for (const [name, item] of Object.entries(key)) stored.set(name, item)
+        else stored.set(key, value)
+      }
     }
   })
   const post = (country) => counter.fetch(new Request(`${SITE}/api/visits`, {
@@ -92,6 +95,74 @@ test('VisitCounter counts real countries and ignores an unknown one', async () =
   const body = await (await counter.fetch(new Request(`${SITE}/api/visits`))).json()
   assert.equal(body.total, 4)
   assert.deepEqual(body.countries, [{ code: 'US', count: 2 }, { code: 'BD', count: 1 }])
+})
+
+function visitCounter(start = Date.parse('2026-10-27T12:30:00Z')) {
+  const stored = new Map()
+  let now = start
+  const counter = new VisitCounter({
+    storage: {
+      get: async (key) => stored.get(key),
+      put: async (entries) => { for (const [key, value] of Object.entries(entries)) stored.set(key, value) }
+    }
+  }, {}, () => now)
+  const send = (method, path, { country, body } = {}) => counter.fetch(new Request(`${SITE}${path}`, {
+    method,
+    headers: { 'content-type': 'application/json', ...(country ? { 'cf-ipcountry': country } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  })).then((response) => response.json())
+  return { counter, stored, send, advance: (ms) => { now += ms } }
+}
+
+test('visits: the last 24 hours are counted per hour and per country, older hours are dropped', async () => {
+  const { send, stored, advance } = visitCounter()
+  await send('POST', '/api/visits', { country: 'CA' })
+  advance(2 * 60 * 60 * 1000)
+  await send('POST', '/api/visits', { country: 'CA' })
+  await send('POST', '/api/visits', { country: 'IN' })
+  let body = await send('GET', '/api/visits')
+  assert.equal(body.hours.length, 24)
+  assert.deepEqual(body.hours.slice(-3), [1, 0, 2], 'oldest to newest, this hour last')
+  assert.equal(body.day.total, 3)
+  assert.deepEqual(body.day.countries, [{ code: 'CA', count: 2 }, { code: 'IN', count: 1 }])
+
+  advance(24 * 60 * 60 * 1000)
+  await send('POST', '/api/visits', { country: 'US' })
+  body = await send('GET', '/api/visits')
+  assert.equal(body.total, 4, 'all time keeps everyone')
+  assert.deepEqual(body.day.countries, [{ code: 'US', count: 1 }])
+  assert.equal(Object.keys(stored.get('hours')).length, 1, 'old hours are deleted, not kept')
+})
+
+test('visits: live counts tabs that checked in recently, and keeps nothing in storage', async () => {
+  const { send, stored, advance } = visitCounter()
+  await send('POST', '/api/visits/live', { country: 'BD', body: { id: 'tab-one-aaaa' } })
+  await send('POST', '/api/visits/live', { country: 'BD', body: { id: 'tab-one-aaaa' } })
+  let body = await send('POST', '/api/visits/live', { country: 'US', body: { id: 'tab-two-bbbb' } })
+  assert.equal(body.live.total, 2, 'the same tab counts once')
+  assert.deepEqual(body.live.countries, [{ code: 'BD', count: 1 }, { code: 'US', count: 1 }])
+  assert.equal(body.total, 0, 'checking in is not a new visit')
+  assert.equal(stored.size, 0)
+
+  advance(LIVE_MS + 1000)
+  body = await send('GET', '/api/visits')
+  assert.equal(body.live.total, 0, 'tabs that went quiet drop off')
+
+  const bad = await (await visitCounter().counter.fetch(new Request(`${SITE}/api/visits/live`, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: '<script>' })
+  }))).status
+  assert.equal(bad, 400)
+})
+
+test('visits: live check-ins are POST only and from the PhoneCam site', async () => {
+  const visits = { idFromName: () => 'site', get: () => ({ fetch: async () => Response.json({ total: 0 }) }) }
+  const call = (method, origin) => worker.fetch(
+    new Request(`${SITE}/api/visits/live`, { method, headers: origin ? { origin } : {} }),
+    env({ VISITS: visits })
+  )
+  assert.equal((await call('GET')).status, 405)
+  assert.equal((await call('POST', 'https://evil.example')).status, 403)
+  assert.equal((await call('POST', SITE)).status, 200)
 })
 
 test('pages are served from static assets', async () => {
@@ -289,4 +360,84 @@ test('signalling ignores junk, unknown types and oversized messages', () => {
   r.webSocketMessage(phone, JSON.stringify({ type: 'OFFER', dst: PHONE }))
   r.webSocketMessage(phone, JSON.stringify({ type: 'OFFER', dst: LAPTOP, payload: 'x'.repeat(40000) }))
   assert.equal(laptop.sent.length + phone.sent.length, 0)
+})
+
+// ---- Problem reports (/api/report) ----
+
+const { buildMime, validEmail } = await import('../../worker/report.js')
+
+function fakeMail({ fail = false } = {}) {
+  const sent = []
+  return { sent, async send(message) { if (fail) throw new Error('not verified'); sent.push(message) } }
+}
+
+function report(body, { origin = SITE, mail = fakeMail(), to = 'owner@example.com', type = 'application/json' } = {}) {
+  const headers = { 'content-type': type, 'cf-connecting-ip': '1.2.3.4' }
+  if (origin) headers.origin = origin
+  const extra = mail ? { REPORT_MAIL: mail, REPORT_TO: to } : {}
+  return worker.fetch(new Request(`${SITE}/api/report`, { method: 'POST', headers, body: typeof body === 'string' ? body : JSON.stringify(body) }), env(extra))
+}
+
+const decode = (raw) => Buffer.from(raw.split('\r\n\r\n')[1].replace(/\r\n/g, ''), 'base64').toString('utf8')
+
+test('reports: emailed to the owner with the details, and the sender gets a reference', async () => {
+  const mail = fakeMail()
+  const response = await report({ message: 'The picture froze after 2 minutes in Meet.', email: 'sam@example.com', way: 'extension', details: 'Chrome 141 on Windows' }, { mail })
+  assert.equal(response.status, 201)
+  const data = await response.json()
+  assert.equal(data.ok, true)
+  assert.match(data.id, /^[0-9a-f]{8}$/)
+  assert.equal(mail.sent.length, 1)
+  const { from, to, raw } = mail.sent[0]
+  assert.equal(from, 'reports@phonecam.app')
+  assert.equal(to, 'owner@example.com')
+  assert.match(raw, /^Reply-To: <sam@example\.com>$/m)
+  assert.match(raw, /^Subject: PhoneCam report: The picture froze/m)
+  assert.match(raw, /^Message-ID: <[0-9a-f-]+@phonecam\.app>$/m)
+  const text = decode(raw)
+  assert.match(text, /froze after 2 minutes/)
+  assert.match(text, /Way in: Browser extension/)
+  assert.match(text, /Device: Chrome 141 on Windows/)
+  assert.ok(!text.includes('1.2.3.4'), 'the network address is never sent')
+})
+
+test('reports: only from the PhoneCam site, as JSON, with a real message', async () => {
+  assert.equal((await report({ message: 'Long enough message' }, { origin: 'https://evil.example' })).status, 403)
+  assert.equal((await report({ message: 'Long enough message' }, { origin: null })).status, 403)
+  assert.equal((await report('message=hi', { type: 'text/plain' })).status, 415)
+  assert.equal((await report('{nope')).status, 400)
+  assert.equal((await report({ message: 'short' })).status, 400)
+  const get = await worker.fetch(new Request(`${SITE}/api/report`), env())
+  assert.equal(get.status, 405)
+})
+
+test('reports: a bad email is refused and header injection is impossible', async () => {
+  assert.equal((await report({ message: 'Long enough message', email: 'not-an-email' })).status, 400)
+  assert.equal((await report({ message: 'Long enough message', email: 'a@b.com\r\nBcc: x@y.com' })).status, 400)
+  assert.equal(validEmail('sam@example.com'), true)
+  assert.equal(validEmail('sam@example.com>, x@y.com'), false)
+  const raw = buildMime({ to: 'o@e.com', replyTo: '', subject: 'Line one\r\nBcc: x@y.com', body: 'hi', id: 'abc' })
+  assert.ok(!/^Bcc:/m.test(raw))
+  assert.ok(!/^Reply-To:/m.test(raw))
+})
+
+test('reports: non-ASCII subjects are encoded', () => {
+  const raw = buildMime({ to: 'o@e.com', replyTo: '', subject: 'Caméra figée', body: 'é', id: 'abc' })
+  assert.match(raw, /^Subject: =\?UTF-8\?B\?[A-Za-z0-9+/=]+\?=$/m)
+})
+
+test('reports: bots that fill the hidden field are ignored, nothing is sent', async () => {
+  const mail = fakeMail()
+  const response = await report({ message: 'Buy cheap things now!!', website: 'spam.example' }, { mail })
+  assert.equal(response.status, 201)
+  assert.equal(mail.sent.length, 0)
+})
+
+test('reports: without email set up, or if sending fails, the visitor is told where to write', async () => {
+  const off = await report({ message: 'Long enough message' }, { mail: null })
+  assert.equal(off.status, 503)
+  assert.equal((await off.json()).fallback, 'hello@phonecam.app')
+  const failed = await report({ message: 'Long enough message' }, { mail: fakeMail({ fail: true }) })
+  assert.equal(failed.status, 502)
+  assert.equal((await failed.json()).fallback, 'hello@phonecam.app')
 })

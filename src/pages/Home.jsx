@@ -4,6 +4,7 @@ import SiteNav from '../components/SiteNav.jsx'
 import SiteFooter from '../components/SiteFooter.jsx'
 import Testimonials from '../components/Testimonials.jsx'
 import { paletteStyle, useColorEdition } from '../lib/color-edition.js'
+import VisitCounter from '../components/VisitCounter.jsx'
 import { installHint, platform, useInstallPrompt } from '../lib/platform.js'
 
 const icon = {
@@ -75,7 +76,7 @@ const WAYS = [
     tag: 'Recommended',
     title: 'Browser extension',
     body: 'Shows up as a camera called PhoneCam in Google Meet, Microsoft Teams, Zoom, Discord and Webex on the web.',
-    meta: 'Chrome, Edge, Brave, Arc',
+    meta: 'Free on the Chrome Web Store · Chrome, Edge, Brave, Arc',
     cta: 'Get the extension'
   },
   {
@@ -295,6 +296,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <VisitCounter />
 
       <Testimonials />
 

@@ -1,4 +1,5 @@
-/* Floating Help button. Contact and issue reports open the visitor's email app. */
+/* Floating Help button. Messages go to /api/report (worker/report.js), which emails them to us.
+   Also counts new browsers and checks in for "Live now" (worker/visits.js). */
 (function () {
   var SUPPORT = 'kaysarulanas2@gmail.com'
   var style = document.createElement('style')
@@ -28,6 +29,12 @@
     '.help-fine{margin:8px 0 0;color:#8b97a8;font-size:12px;line-height:1.45;text-align:start;hyphens:manual}',
     '.help-fine a{color:#c5ced8}',
     '.help-split{height:1px;margin:14px 0;background:rgba(255,255,255,.08)}',
+    '.help-status{margin:8px 0 0;padding:10px 12px;border-radius:14px;font-size:13px;line-height:1.45;text-align:start}',
+    '.help-status[hidden]{display:none}',
+    '.help-status.ok{background:color-mix(in srgb,var(--accent,#dff25a) 16%,transparent);color:#f4f6f8}',
+    '.help-status.err{background:rgba(255,75,99,.12);color:#ffc2cb}',
+    '.help-status a{color:inherit}',
+    '.help-row button[disabled]{opacity:.6;cursor:default}',
     '.help-report{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;padding:10px 16px;font:inherit}',
     '@media (max-width:420px){.help-row{padding-left:12px}.help-row button{padding-inline:12px}}'
   ].join('')
@@ -45,13 +52,14 @@
     '<div class="help-row">',
     '<span aria-hidden="true">@</span>',
     '<input type="email" name="email" required placeholder="email@example.com" autocomplete="email" aria-label="Your email">',
-    '<button type="submit">Email us</button>',
+    '<button type="submit">Send</button>',
     '</div>',
-    '<p class="help-fine">Opens your email app. <a href="/privacy.html">Privacy</a>.</p>',
+    '<p class="help-status" role="status" aria-live="polite" hidden></p>',
+    '<p class="help-fine">We reply by email, usually within two working days. <a href="/privacy.html">Privacy</a>.</p>',
     '</form>',
     '<div class="help-split"></div>',
-    '<button type="button" class="help-report">Report an issue</button>',
-    '<p class="help-fine">The email includes this page, so we can see where it happened.</p>',
+    '<a class="help-report" href="/#/report">Report an issue</a>',
+    '<p class="help-fine">A short form for problems. You’ll see a confirmation once it’s sent.</p>',
     '</div>',
     '<button type="button" class="help-fab" aria-expanded="false" aria-controls="help-pop">',
     '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.2 9.2a2.8 2.8 0 1 1 3.5 2.7c-.6.3-1 .9-1 1.6V15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="11.7" cy="17.2" r=".9" fill="currentColor"/></svg>',
@@ -63,7 +71,8 @@
   var pop = dock.querySelector('.help-pop')
   var fab = dock.querySelector('.help-fab')
   var form = dock.querySelector('form')
-  var report = dock.querySelector('.help-report')
+  var statusLine = dock.querySelector('.help-status')
+  var sendButton = form.querySelector('button[type="submit"]')
   var open = false
 
   function onCamera() {
@@ -81,14 +90,6 @@
     var link = document.createElement('a')
     link.href = href
     link.click()
-  }
-
-  function issueBody() {
-    var lines = ['Page: ' + location.href]
-    var current = version()
-    if (current) lines.push('Version: ' + current)
-    lines.push('', 'What happened:', '')
-    return lines.join('\n')
   }
 
   function place() {
@@ -123,22 +124,65 @@
       fab.focus()
     }
   })
-  report.addEventListener('click', function () {
-    openMail('PhoneCam issue', issueBody())
+  dock.querySelector('.help-report').addEventListener('click', function () {
+    setOpen(false)
   })
   document.addEventListener('click', function (event) {
     var trigger = event.target.closest('[data-mail]')
     if (!trigger || dock.contains(trigger)) return
     var kind = trigger.getAttribute('data-mail')
-    if (kind === 'issue') openMail('PhoneCam issue', issueBody())
+    if (kind === 'issue') location.href = '/#/report'
     else if (kind === 'support') openMail('PhoneCam support')
     else openMail('PhoneCam')
   })
+  function say(kind, text, mailTo) {
+    statusLine.className = 'help-status ' + kind
+    statusLine.textContent = text
+    if (mailTo) {
+      statusLine.append(' ')
+      var link = document.createElement('a')
+      link.href = 'mailto:' + mailTo + '?subject=' + encodeURIComponent('PhoneCam')
+      link.textContent = 'Email ' + mailTo + ' instead.'
+      statusLine.append(link)
+    }
+    statusLine.hidden = false
+  }
+
   form.addEventListener('submit', function (event) {
     event.preventDefault()
     var email = String(form.elements.email.value || '').trim()
     var message = String(form.elements.message.value || '').trim()
-    openMail('PhoneCam', 'From: ' + email + '\n\n' + message + '\n\nPage: ' + location.href)
+    if (message.length < 10) return say('err', 'Tell us a little more, so we can help.')
+    if (!form.elements.email.checkValidity()) return say('err', 'Add your email so we can reply.')
+    sendButton.disabled = true
+    sendButton.textContent = 'Sending…'
+    statusLine.hidden = true
+    var lines = ['Page: ' + location.href]
+    var current = version()
+    if (current) lines.push('Version: ' + current)
+    fetch('/api/report', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: message, email: email, way: 'unsure', details: lines.join(' · ') })
+    })
+      .then(function (response) {
+        return response.json().catch(function () { return {} }).then(function (data) { return { ok: response.ok, data: data } })
+      })
+      .then(function (result) {
+        if (result.ok) {
+          form.elements.message.value = ''
+          say('ok', 'Sent. Thanks! We’ll reply to ' + email + '.')
+        } else {
+          say('err', result.data.error || 'Your message couldn’t be sent.', result.data.fallback || SUPPORT)
+        }
+      })
+      .catch(function () {
+        say('err', 'Could not reach PhoneCam. Check your connection.', SUPPORT)
+      })
+      .then(function () {
+        sendButton.disabled = false
+        sendButton.textContent = 'Send'
+      })
   })
 
   window.addEventListener('hashchange', place)
@@ -157,9 +201,30 @@
         if (!data || typeof data.total !== 'number') return
         try { localStorage.setItem('pc.visit', '1') } catch (e) {}
         if (panel) paintVisits(panel, data)
+        // The home page counter (src/components/VisitCounter.jsx) shows the new count at once.
+        try { window.dispatchEvent(new CustomEvent('phonecam:visits', { detail: data })) } catch (e) {}
       })
       .catch(function () {})
   }
+
+  // "Live now": check in every minute while the tab is visible. Same tab id as src/lib/visits.js.
+  // The home page counter checks in itself and sets window.__pcLiveOwner.
+  function liveId() {
+    var id = ''
+    try { id = sessionStorage.getItem('pc.live') || '' } catch (e) {}
+    if (!id) {
+      id = (window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()).replace(/[^A-Za-z0-9]/g, '')
+      try { sessionStorage.setItem('pc.live', id) } catch (e) {}
+    }
+    return id
+  }
+  function checkIn() {
+    if (document.visibilityState === 'hidden' || window.__pcLiveOwner) return
+    fetch('/api/visits/live', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: liveId() }) }).catch(function () {})
+  }
+  setTimeout(checkIn, 1500)
+  setInterval(checkIn, 60000)
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkIn() })
 
   function countryName(code) {
     try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code } catch (e) { return code }

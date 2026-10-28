@@ -98,7 +98,7 @@ npm run build
 npm run deploy
 ```
 
-`npm run build` writes the web app to `dist/`, the extension to `dist-extension/`, and a download zip to `dist/phonecam-extension.zip`. The receiver page offers that zip. With the default signalling server and no extra extension sites, it also writes a Chrome Web Store zip to `store/phonecam-extension-<version>.zip`. Store copy and screenshots are in [store/listing.md](store/listing.md).
+`npm run build` writes the web app to `dist/`, the extension to `dist-extension/`, and a download zip to `dist/phonecam-extension.zip`. The site now links to the Chrome Web Store instead of offering that zip. With the default signalling server and no extra extension sites, it also writes a Chrome Web Store zip to `store/phonecam-extension-<version>.zip`. Store copy and screenshots are in [store/listing.md](store/listing.md).
 
 `npm run deploy` publishes `dist/` with Wrangler. `wrangler.toml` serves it as a Worker with static assets at `phonecam.app` and `www.phonecam.app`.
 
@@ -133,10 +133,12 @@ The README pictures are in `doc/readme/`.
 
 The extension has its own pairing, saved in the browser. After it is installed, the receiver page can stay closed. Its QR code always opens https://phonecam.app.
 
-Install it from a build:
+Install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/phonecam/epjoknjniceibpgljkanihbkpcfopdld) (Chrome, Edge, Brave and Arc).
 
-1. Download `phonecam-extension.zip` from the receiver page (or run `npm run build:extension`) and unzip it.
-2. Open `chrome://extensions` (or `edge://extensions`), turn on **Developer mode**, click **Load unpacked** and pick the `phonecam-extension` folder (or `dist-extension/`).
+For development, load your own build instead:
+
+1. Run `npm run build:extension`.
+2. Open `chrome://extensions` (or `edge://extensions`), turn on **Developer mode**, click **Load unpacked** and pick `dist-extension/`. Remove the store version first so the two don't both add a PhoneCam camera.
 3. Click the PhoneCam icon in the toolbar and scan its QR code with the phone. Tap **Start streaming**.
 4. In the meeting, choose **PhoneCam** as the camera. `#/check` previews it before you join.
 

@@ -5,6 +5,7 @@ import Camera from './pages/Camera.jsx'
 import Receiver from './pages/Receiver.jsx'
 import Check from './pages/Check.jsx'
 import Rate from './pages/Rate.jsx'
+import Report from './pages/Report.jsx'
 import HomeDemo from './pages/HomeDemo.jsx'
 
 // An unknown app address (#/admin, #/login…) goes to the same path without the #,
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/receiver" element={<Receiver />} />
         <Route path="/check" element={<Check />} />
         <Route path="/rate" element={<Rate />} />
+        <Route path="/report" element={<Report />} />
         <Route path="/demo" element={<HomeDemo />} />
         <Route path="*" element={<Lost />} />
       </Routes>

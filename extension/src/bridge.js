@@ -47,7 +47,12 @@ function carrier() {
     video = document.createElement('video')
     video.id = CARRIER_ID
     video.muted = true
-    video.hidden = true
+    video.autoplay = true
+    video.playsInline = true
+    video.setAttribute('playsinline', '')
+    // A display:none video can stop Chrome from delivering frames from this track.
+    // Keep a tiny painted element, off to the side, so the meeting still receives pictures.
+    video.style.cssText = 'position:fixed;left:-8px;top:0;width:8px;height:8px;opacity:0;pointer-events:none'
     document.documentElement.appendChild(video)
   }
   return video
@@ -63,7 +68,11 @@ function open() {
       report(code)
     },
     onStream: (media) => {
-      carrier().srcObject = media
+      const video = carrier()
+      video.srcObject = media
+      const track = media.getVideoTracks()[0]
+      if (track) track.enabled = true
+      video.play().catch(() => {})
       say('phonecam:stream')
     },
     onDrop: () => {

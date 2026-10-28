@@ -6,8 +6,10 @@
     GET  /api/turn      short-lived TURN relay credentials from Cloudflare Realtime
     GET  /api/feedback  average rating, count, and approved public comments
     POST /api/feedback  { rating 1-5, comment?, name?, publicOk?, website? }
-    GET  /api/visits    the visitor total, without counting this request
-    POST /api/visits    count one new browser and return the total
+    GET  /api/visits    visitor numbers (all time, last 24 hours, live now), counts nothing
+    POST /api/visits    count one new browser and return the numbers
+    POST /api/visits/live  { id } mark this tab as here now (worker/visits.js)
+    POST /api/report    { message, email?, way?, details?, website? }  emails a problem report (worker/report.js)
     anything else that isn't a file: the 404 page in worker/notfound.js
 
   Ratings are stored in the D1 database bound as env.DB. Until that database
@@ -22,6 +24,7 @@
 import { SignalRoom, roomOf } from './signal.js'
 import { VisitCounter } from './visits.js'
 import { notFound } from './notfound.js'
+import { report } from './report.js'
 
 export { SignalRoom, VisitCounter }
 
@@ -205,9 +208,9 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url)
 
-    if (url.pathname === '/api/visits') {
+    if (url.pathname === '/api/visits' || url.pathname === '/api/visits/live') {
       if (!env.VISITS) return json({ error: 'Visits are not set up yet.' }, 503)
-      if (request.method !== 'GET' && request.method !== 'POST') {
+      if (url.pathname === '/api/visits/live' ? request.method !== 'POST' : request.method !== 'GET' && request.method !== 'POST') {
         return json({ error: 'Method not allowed.' }, 405, { allow: 'GET, POST' })
       }
       if (request.method === 'POST') {
@@ -234,6 +237,8 @@ export default {
         return json({ error: 'Something went wrong. Try again later.' }, 500)
       }
     }
+
+    if (url.pathname === '/api/report') return report(request, env, json)
 
     if (url.pathname === '/signal/peerjs') return signal(request, env)
 

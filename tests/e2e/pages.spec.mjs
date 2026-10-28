@@ -28,7 +28,7 @@ async function open(path, viewport) {
 }
 
 const GUIDES = ['/webcam', '/use-phone-as-webcam', '/iphone-as-webcam', '/android-as-webcam', '/meeting-webcam', '/obs-phone-camera', '/blurry-laptop-webcam']
-const PAGES = ['/#/', '/#/receiver?mode=meeting', '/#/receiver?mode=share', '/#/receiver?mode=obs', '/#/camera', '/#/check', '/#/rate', '/privacy.html', '/guides', '/about', '/support', ...GUIDES]
+const PAGES = ['/#/', '/#/receiver?mode=meeting', '/#/receiver?mode=share', '/#/receiver?mode=obs', '/#/camera', '/#/check', '/#/rate', '/#/report', '/privacy.html', '/guides', '/about', '/support', ...GUIDES]
 
 for (const size of ['laptop', 'phone']) {
   for (const path of PAGES) {

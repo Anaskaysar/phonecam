@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "PhoneCam",
-  "version": "1.0.0",
-  "description": "Use your phone as a camera in Google Meet, Teams, Zoom and other browser meetings. Nothing to install on the phone.",
+  "version": "1.0.1",
+  "description": "Use your phone as a camera in Google Meet and other browser video meetings. No App Store needed.",
   "homepage_url": "https://phonecam.app",
   "minimum_chrome_version": "111",
   "icons": {

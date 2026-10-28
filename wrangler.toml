@@ -48,3 +48,16 @@ new_sqlite_classes = ["VisitCounter"]
 binding = "DB"
 database_name = "phonecam"
 database_id = "a33ee483-2a24-4467-80b0-e0d9c744e510"
+
+# Problem reports (the "Report an issue" form at /#/report). Free with Cloudflare Email Routing.
+#   1. Cloudflare dashboard → phonecam.app → Email → Email Routing → Enable (it adds the MX records)
+#   2. Destination addresses → add kaysarulanas2@gmail.com and click the link in the email Cloudflare sends
+#   3. Routing rules → Custom address hello@phonecam.app → Send to kaysarulanas2@gmail.com
+#   4. Remove the # signs below, then npm run deploy
+# Until then the form says it can't send and shows hello@phonecam.app instead.
+# [[send_email]]
+# name = "REPORT_MAIL"
+# destination_address = "kaysarulanas2@gmail.com"
+#
+# [vars]
+# REPORT_TO = "kaysarulanas2@gmail.com"

@@ -7,39 +7,42 @@ Copy these into the developer dashboard. Images are in this folder.
 
 ## Store listing tab
 - **Name:** PhoneCam (from the manifest)
-- **Summary** (from the manifest): Use your phone as a camera in Google Meet, Teams, Zoom and other browser meetings. Nothing to install on the phone.
+- **Summary** (from the manifest): Use your phone as a camera in Google Meet and other browser video meetings. No App Store needed.
 - **Category:** Communication
 - **Language:** English
 - **Store icon:** `icons` in the zip (`icon-128.png`), also upload `store/icon-128.png` if asked
 - **Screenshots (1280×800):** `screenshot-1.png`, `screenshot-2.png`, `screenshot-3.png`
 - **Small promo tile (440×280):** `promo-440x280.png`
+- **Marquee promo tile (1400×560):** `marquee-1400x560.png`
 - **Homepage URL:** https://phonecam.app
 - **Support URL:** https://phonecam.app/support
 
 ### Description
 
-PhoneCam turns the phone you already own into a camera for browser meetings, with no app on the phone.
+(Rewritten after the first review flagged a list of meeting apps as keyword spam. Keep brand names to one example.)
 
-Open the PhoneCam extension, scan its QR code with your phone and tap Start streaming. Then choose “PhoneCam” as your camera in Google Meet, Microsoft Teams, Zoom, Discord, Whereby, Jitsi Meet or Webex, the same way you would pick any webcam.
+PhoneCam turns the phone you already own into a camera for video meetings in your browser. No App Store download: open PhoneCam on the phone and add it to your Home Screen.
+
+Open the PhoneCam extension, scan its QR code with your phone and tap Start streaming. Then choose "PhoneCam" in your meeting's camera settings, the same way you would pick any webcam.
 
 Why PhoneCam
-• Nothing to install on the phone. It runs in Safari or Chrome on iPhone and Android.
-• Shows up as a normal camera. No OBS, no virtual camera driver, no extra desktop app.
-• Private by design. Each QR code pairs one phone, once, and only that phone can connect afterwards. The video goes directly from your phone to your computer over an encrypted peer-to-peer connection. It never passes through a PhoneCam server (on strict networks it may use Cloudflare’s relay, still encrypted), and nothing is recorded or tracked.
-• Stays steady. If the phone locks or loses Wi-Fi, the meeting shows a waiting card and picks the picture back up on its own, without reselecting the camera.
-• Works on Mac, Windows, Linux and ChromeOS, in Chrome, Edge, Brave and Arc.
+• No App Store needed. Open PhoneCam in Safari or Chrome on iPhone or Android, then add it to your Home Screen so it opens like an app, full screen and straight to the camera.
+• Shows up as a normal camera in browser meetings. No OBS, no virtual camera driver, no extra desktop app.
+• Private by design. Each QR code pairs one phone, once, and only that phone can connect afterwards. The video goes directly from your phone to your computer over an encrypted peer-to-peer connection. It never passes through a PhoneCam server (on strict networks it may use Cloudflare's relay, still encrypted), and nothing is recorded or tracked.
+• Stays steady. If the phone locks or loses Wi-Fi, the meeting shows the PhoneCam logo and picks the picture back up on its own, without reselecting the camera.
+• Works on Mac, Windows, Linux and ChromeOS, in Chrome and Edge.
 
 How to use it
 1. Click the PhoneCam icon in the toolbar.
-2. Scan the QR code with your phone and tap Start streaming. Keep the PhoneCam screen open on the phone. Next time, just open PhoneCam on the phone and tap Start.
-3. In your meeting’s camera settings, choose PhoneCam.
+2. Scan the QR code with your phone and tap Start streaming. Keep the PhoneCam screen open on the phone. Next time, open PhoneCam from your Home Screen and tap Start.
+3. In your meeting's camera settings, for example in Google Meet, choose PhoneCam.
 
 Tips
 • Keep the phone and the computer on the same Wi-Fi for the most reliable connection.
 • Use a phone stand and a charger for long meetings.
 • Check the camera any time at https://phonecam.app/#/check
 
-PhoneCam works in meetings that run in the browser. For desktop apps like the Zoom or Teams app, use the “Share a tab” or OBS options at https://phonecam.app.
+PhoneCam works in meetings that run in the browser. For desktop apps, use the OBS option at https://phonecam.app.
 
 ## Privacy practices tab
 - **Single purpose:** Adds the user’s phone camera to the camera list in browser-based video meetings, as a camera named “PhoneCam”, and delivers the phone’s video when the user selects it.

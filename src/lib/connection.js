@@ -65,3 +65,36 @@ export async function connectionOptions() {
   if (servers) options.config = { iceServers: servers, sdpSemantics: 'unified-plan' }
   return options
 }
+
+const ICE_GRACE_MS = 12000
+
+/*
+  disconnected means ICE is still trying, often the relay on another network.
+  Dropping at that moment closes the call before the relay connects.
+  failed and closed are final. A disconnected call that never recovers is dropped
+  after the grace period.
+*/
+export function onPeerDown(pc, onLost, graceMs = ICE_GRACE_MS) {
+  let timer = 0
+  pc.addEventListener('connectionstatechange', () => {
+    const state = pc.connectionState
+    if (state === 'new' || state === 'connecting' || state === 'connected') {
+      clearTimeout(timer)
+      timer = 0
+      return
+    }
+    if (state === 'disconnected') {
+      if (timer) return
+      timer = setTimeout(() => {
+        timer = 0
+        if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) onLost()
+      }, graceMs)
+      return
+    }
+    if (state === 'failed' || state === 'closed') {
+      clearTimeout(timer)
+      timer = 0
+      onLost()
+    }
+  })
+}

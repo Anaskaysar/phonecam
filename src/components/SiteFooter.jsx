@@ -1,6 +1,7 @@
 /* global __APP_VERSION__ */
 import { Link, useLocation } from 'react-router-dom'
 import Logo from './Logo.jsx'
+import { EXTENSION_STORE_URL } from '../lib/extension.js'
 
 const VERSION = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : ''
 const REPO = 'https://github.com/Anaskaysar/phonecam'
@@ -26,6 +27,7 @@ export default function SiteFooter() {
             <FooterLink to="/camera">Open the camera</FooterLink>
             <FooterLink to="/receiver?mode=meeting">Browser extension</FooterLink>
             <FooterLink to="/check">Check the extension</FooterLink>
+            <a href={EXTENSION_STORE_URL}>Chrome Web Store</a>
           </div>
           <div>
             <h2>Guides</h2>
@@ -42,7 +44,7 @@ export default function SiteFooter() {
             <FooterLink to="/?section=faq">Questions</FooterLink>
             <a href="/support">Support</a>
             <FooterLink to="/rate">Rate PhoneCam</FooterLink>
-            <button type="button" data-mail="issue">Report an issue</button>
+            <FooterLink to="/report">Report an issue</FooterLink>
           </div>
           <div>
             <h2>About</h2>

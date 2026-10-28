@@ -69,35 +69,77 @@ function guidePagesPlugin() {
 const visitCountFile = new URL('./.visit-count', import.meta.url)
 
 function visitCounterPlugin() {
+  // Dev copy of worker/visits.js: same answers, kept in .visit-count.
+  const HOUR = 60 * 60 * 1000
+  const live = new Map()
+  const hourKey = (time) => new Date(time).toISOString().slice(0, 13)
+  const lastDay = (now) => Array.from({ length: 24 }, (_, index) => hourKey(now - (23 - index) * HOUR))
+  const list = (counts) => Object.entries(counts)
+    .filter(([code, count]) => /^[A-Z]{2}$/.test(code) && count > 0)
+    .map(([code, count]) => ({ code, count }))
+    .sort((a, b) => b.count - a.count || a.code.localeCompare(b.code))
+  const sum = (counts) => Object.values(counts).reduce((total, count) => total + count, 0)
   const read = () => {
     try {
       const raw = fs.readFileSync(visitCountFile, 'utf8').trim()
-      if (raw.startsWith('{')) return JSON.parse(raw)
-      return { total: Number(raw) || 0, countries: {} }
+      const data = raw.startsWith('{') ? JSON.parse(raw) : { total: Number(raw) || 0 }
+      return { total: data.total || 0, countries: data.countries || {}, hours: data.hours || {} }
     } catch {
-      return { total: 0, countries: {} }
+      return { total: 0, countries: {}, hours: {} }
     }
   }
   const write = (data) => fs.writeFileSync(visitCountFile, JSON.stringify(data))
+  const countryOf = (req) => {
+    const code = String(req.headers['cf-ipcountry'] || '').trim().toUpperCase()
+    return /^[A-Z]{2}$/.test(code) && !['XX', 'T1', 'AP', 'EU'].includes(code) ? code : ''
+  }
   return {
     name: 'phonecam-visits',
     configureServer(server) {
       server.middlewares.use('/api/visits', (req, res) => {
+        const now = Date.now()
         const data = read()
+        const send = () => {
+          for (const [id, seen] of live) if (now - seen.at > 150000) live.delete(id)
+          const keys = lastDay(now)
+          const day = {}
+          for (const key of keys) for (const [code, count] of Object.entries(data.hours[key] || {})) day[code] = (day[code] || 0) + count
+          const here = {}
+          for (const seen of live.values()) if (seen.code) here[seen.code] = (here[seen.code] || 0) + 1
+          res.setHeader('content-type', 'application/json; charset=utf-8')
+          res.setHeader('cache-control', 'no-store')
+          res.end(JSON.stringify({
+            total: data.total,
+            countries: list(data.countries),
+            day: { total: sum(day), countries: list(day) },
+            live: { total: live.size, countries: list(here) },
+            hours: keys.map((key) => sum(data.hours[key] || {}))
+          }))
+        }
+        if (req.method === 'POST' && req.url.startsWith('/live')) {
+          let body = ''
+          req.on('data', (chunk) => { body += chunk })
+          req.on('end', () => {
+            try {
+              const id = String(JSON.parse(body).id || '')
+              if (/^[A-Za-z0-9_-]{8,64}$/.test(id)) live.set(id, { code: countryOf(req), at: now })
+            } catch { /* ignore */ }
+            send()
+          })
+          return
+        }
         if (req.method === 'POST') {
+          const code = countryOf(req)
           data.total += 1
-          const code = String(req.headers['cf-ipcountry'] || '').trim().toUpperCase()
-          if (/^[A-Z]{2}$/.test(code) && !['XX', 'T1', 'AP', 'EU'].includes(code)) {
-            data.countries[code] = (data.countries[code] || 0) + 1
-          }
+          if (code) data.countries[code] = (data.countries[code] || 0) + 1
+          const keep = new Set(lastDay(now))
+          for (const key of Object.keys(data.hours)) if (!keep.has(key)) delete data.hours[key]
+          const key = hourKey(now)
+          data.hours[key] ||= {}
+          data.hours[key][code || '?'] = (data.hours[key][code || '?'] || 0) + 1
           write(data)
         }
-        const countries = Object.entries(data.countries || {})
-          .map(([code, count]) => ({ code, count }))
-          .sort((a, b) => b.count - a.count || a.code.localeCompare(b.code))
-        res.setHeader('content-type', 'application/json; charset=utf-8')
-        res.setHeader('cache-control', 'no-store')
-        res.end(JSON.stringify({ total: data.total, countries }))
+        send()
       })
     }
   }

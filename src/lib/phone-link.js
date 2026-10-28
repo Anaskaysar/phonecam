@@ -1,5 +1,5 @@
 import { Peer } from 'peerjs'
-import { connectionOptions } from './connection.js'
+import { connectionOptions, onPeerDown } from './connection.js'
 import { check, nonce, phonePeerId, prove, receiverPeerId, unseal, validKey } from './pairing.js'
 
 /*
@@ -61,12 +61,12 @@ export function startPhoneLink({ roomId, key, getStream, onStatus = () => {}, on
         if (pc.connectionState === 'connected') {
           status('live', 'Live on your laptop', 'live')
           onLive(pc)
-          return
         }
-        if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) {
-          status('lost', 'Connection lost. Retrying…')
-          scheduleRetry()
-        }
+      })
+      onPeerDown(pc, () => {
+        if (stopped || call !== next) return
+        status('lost', 'Connection lost. Retrying…')
+        scheduleRetry()
       })
     }
     next.on('close', () => {

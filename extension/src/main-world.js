@@ -95,6 +95,7 @@ function createFeed() {
   let phoneTrackId = ''
   let writing = false
   let lastPhoneFrame = 0
+  let lastStamp = 0
   let size = { width: WIDTH, height: HEIGHT }
   let status = { code: 'connecting', paired: false }
 
@@ -155,12 +156,29 @@ function createFeed() {
     ctx.globalAlpha = 1
   }
 
+  // The meeting track rejects a frame whose timestamp goes backwards. Placeholder
+  // frames and phone frames use different clocks, so every frame is restamped.
+  function stamped(frame) {
+    let ts = frame.timestamp
+    if (!Number.isFinite(ts) || ts <= lastStamp) ts = lastStamp + 33333
+    lastStamp = ts
+    if (ts === frame.timestamp) return frame
+    const next = new VideoFrame(frame, { timestamp: ts })
+    frame.close()
+    return next
+  }
+
   function tick() {
     if (writing || !writer) return
     // Show the waiting card if the phone goes quiet, for example when iOS pauses the camera.
     if (reader && performance.now() - lastPhoneFrame < STALL_MS) return
     drawPlaceholder()
-    const frame = new VideoFrame(canvas, { timestamp: Math.round(performance.now() * 1000) })
+    let frame
+    try {
+      frame = stamped(new VideoFrame(canvas, { timestamp: Math.round(performance.now() * 1000) }))
+    } catch {
+      return
+    }
     size = { width: WIDTH, height: HEIGHT }
     writing = true
     writer.write(frame)
@@ -185,11 +203,13 @@ function createFeed() {
         }
         size = { width: value.displayWidth, height: value.displayHeight }
         lastPhoneFrame = performance.now()
+        let frame = value
         try {
-          await writer.write(value)
+          frame = stamped(value)
+          await writer.write(frame)
         } catch {
-          try { value.close() } catch { /* already closed */ }
-          break
+          try { frame.close() } catch { /* already closed */ }
+          // One bad frame must not end the phone picture. The next frame still goes through.
         }
       }
     } catch {

@@ -53,9 +53,9 @@ function footer(content) {
       <p>Your phone is the webcam. Nothing to install on the phone, no account, nothing recorded.</p>
     </div>
     <nav class="sf-cols" aria-label="Footer">
-      <div><h2>Use PhoneCam</h2>${USE_LINKS.map((item) => `<a href="${item.href}">${item.label === 'Receiver' ? 'Open the receiver' : item.label === 'Phone camera' ? 'Open the camera' : item.label}</a>`).join('')}</div>
+      <div><h2>Use PhoneCam</h2>${USE_LINKS.map((item) => `<a href="${item.href}">${item.label === 'Receiver' ? 'Open the receiver' : item.label === 'Phone camera' ? 'Open the camera' : item.label}</a>`).join('')}<a href="https://chromewebstore.google.com/detail/phonecam/epjoknjniceibpgljkanihbkpcfopdld">Chrome Web Store</a></div>
       <div><h2>Guides</h2>${guideLinks}<a href="/guides">All guides →</a></div>
-      <div><h2>Help</h2><a href="/#/?section=how">How it works</a><a href="/#/?section=faq">Questions</a><a href="/support">Support</a><a href="/#/rate">Rate PhoneCam</a><button type="button" data-mail="issue">Report an issue</button></div>
+      <div><h2>Help</h2><a href="/#/?section=how">How it works</a><a href="/#/?section=faq">Questions</a><a href="/support">Support</a><a href="/#/rate">Rate PhoneCam</a><a href="/#/report">Report an issue</a></div>
       <div><h2>About</h2><a href="/about">About PhoneCam</a><a href="/privacy.html">Privacy</a><a href="${REPO}">Source on GitHub</a></div>
     </nav>
   </div>

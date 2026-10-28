@@ -6,7 +6,7 @@ import Status from '../components/Status.jsx'
 import SiteNav from '../components/SiteNav.jsx'
 import SiteFooter from '../components/SiteFooter.jsx'
 import { copyText } from '../lib/copy.js'
-import { EXTENSION_ZIP } from '../lib/extension.js'
+import { EXTENSION_STORE_URL } from '../lib/extension.js'
 import { openRoom } from '../lib/receiver-core.js'
 import { loadRoomState, newRoomState, pairToken, parsePairToken, saveRoomState } from '../lib/pairing.js'
 import { readStorage, writeStorage } from '../lib/room.js'
@@ -187,7 +187,6 @@ function ReceiverSetup({ params, setParams, mirror, fit, audio }) {
   if (fit === 'cover') obsQuery.set('fit', 'cover')
   if (audio) obsQuery.set('audio', '1')
   const obsUrl = obsRoom.pairKey ? hashUrl(`/receiver?${obsQuery.toString()}`) : ''
-  const zipUrl = `${import.meta.env.BASE_URL}${EXTENSION_ZIP}`
   const shareQr = useMemo(() => (shareUrl ? qrMarkup(shareUrl) : ''), [shareUrl])
   const obsQr = useMemo(() => (obsPhoneUrl ? qrMarkup(obsPhoneUrl) : ''), [obsPhoneUrl])
 
@@ -441,14 +440,14 @@ function ReceiverSetup({ params, setParams, mirror, fit, audio }) {
               <div className="setup-copy">
                 <h1>Pick PhoneCam as your camera</h1>
                 <p className="lede-sm">The PhoneCam extension adds your phone to the camera list in Google Meet, Microsoft Teams, Zoom, Discord, Whereby, Jitsi and Webex in Chrome or Edge.</p>
-                <p className="manual-note">Manual install for now. The Chrome Web Store version is on its way.</p>
+                <p className="store-note"><span className="store-dot" aria-hidden="true" />Free on the Chrome Web Store</p>
                 <div className="row-actions">
-                  <a className="primary button-link" href={zipUrl} download>Download PhoneCam extension</a>
+                  <a className="primary button-link" href={EXTENSION_STORE_URL} target="_blank" rel="noopener">Add to Chrome</a>
                   <Link className="text-link" to="/check">Check that it works →</Link>
                 </div>
                 <ol className="steps">
-                  <li><span>Unzip the download.</span></li>
-                  <li><span>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>), turn on <b>Developer mode</b>, click <b>Load unpacked</b> and pick the <b>phonecam-extension</b> folder.</span></li>
+                  <li><span>Click <b>Add to Chrome</b> on the store page. In Edge, choose <b>Allow extensions from other stores</b> when asked.</span></li>
+                  <li><span>Reload any meeting tab that was already open.</span></li>
                   <li><span>Click the <b>PhoneCam</b> icon in the toolbar and scan its code with your phone. Tap <b>Start streaming</b>.</span></li>
                   <li><span>In the meeting’s camera settings, choose <b>PhoneCam</b>.</span></li>
                 </ol>

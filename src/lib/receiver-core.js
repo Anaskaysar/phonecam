@@ -1,5 +1,5 @@
 import { Peer } from 'peerjs'
-import { connectionOptions } from './connection.js'
+import { connectionOptions, onPeerDown } from './connection.js'
 import { check, isPhoneOf, newKey, nonce, prove, receiverPeerId, seal } from './pairing.js'
 
 /*
@@ -155,9 +155,9 @@ export function openRoom(room, { onStatus = () => {}, onStream = () => {}, onDro
       })
       const pc = incoming.peerConnection
       if (pc) {
-        pc.addEventListener('connectionstatechange', () => {
+        onPeerDown(pc, () => {
           if (closed || current !== incoming) return
-          if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) dropped()
+          dropped()
         })
       }
       incoming.on('close', () => {
