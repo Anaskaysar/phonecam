@@ -69,6 +69,8 @@ test('someone without the key cannot push video into the call', { timeout: 60000
 
 test('the paired phone reconnects later without scanning', { timeout: 60000 }, async () => {
   await tapStop(phoneA)
+  await phoneA.getByRole('dialog', { name: 'How was PhoneCam?' }).waitFor()
+  await phoneA.getByRole('button', { name: 'Not now' }).click()
   await sleep(1500)
   await phoneA.reload()
   await sleep(1000)

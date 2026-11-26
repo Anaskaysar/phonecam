@@ -29,7 +29,9 @@ const PORT = Number(process.env.PHONECAM_ADMIN_PORT || 4545)
 const KEY = crypto.randomBytes(24).toString('hex')
 const LOCAL = process.env.PHONECAM_ADMIN_LOCAL === '1'
 const page = () => fs.readFileSync(path.join(here, 'index.html'))
-const wranglerBin = path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'wrangler.cmd' : 'wrangler')
+// Call Wrangler's JS entry with this Node. Spawning wrangler.cmd on Windows
+// throws EINVAL (Node refuses .cmd shims unless a shell is involved).
+const wranglerJs = path.join(root, 'node_modules', 'wrangler', 'bin', 'wrangler.js')
 
 const LIST_SQL = `SELECT id, rating, comment, name, public_ok, approved, created_at FROM feedback ORDER BY id DESC LIMIT 500;
 SELECT COUNT(*) AS count, AVG(rating) AS average,
@@ -52,9 +54,10 @@ function d1(sql) {
     ? ['--local', '--config', 'tests/e2e/wrangler.test.toml', '--persist-to', '.test-build/state']
     : ['--remote']
   return new Promise((resolve, reject) => {
-    const child = spawn(wranglerBin, ['d1', 'execute', 'phonecam', ...target, '--json', '--command', sql], {
+    const child = spawn(process.execPath, [wranglerJs, 'd1', 'execute', 'phonecam', ...target, '--json', '--command', sql], {
       cwd: root,
-      env: { ...process.env, WRANGLER_SEND_METRICS: 'false', FORCE_COLOR: '0' }
+      env: { ...process.env, WRANGLER_SEND_METRICS: 'false', FORCE_COLOR: '0' },
+      windowsHide: true
     })
     let out = ''
     let err = ''
@@ -135,6 +138,17 @@ function sameKey(given) {
   return crypto.timingSafeEqual(a, b)
 }
 
+function openBrowser(link) {
+  // No shell: on Windows `start` is a cmd builtin, and passing it through
+  // shell:true warns and can drop the #key= fragment.
+  if (process.platform === 'win32') {
+    spawn('cmd.exe', ['/d', '/c', 'start', '', link], { stdio: 'ignore', detached: true, windowsHide: true }).unref()
+    return
+  }
+  const opener = process.platform === 'darwin' ? 'open' : 'xdg-open'
+  spawn(opener, [link], { stdio: 'ignore', detached: true }).unref()
+}
+
 const server = http.createServer(async (request, response) => {
   // Refuse anything not addressed to this computer by name (blocks DNS-rebinding tricks).
   const host = request.headers.host || ''
@@ -168,7 +182,6 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(`Open: ${link}`)
   console.log('Only this computer can open it. Press Ctrl+C to stop.\n')
   if (process.env.PHONECAM_ADMIN_NO_OPEN !== '1') {
-    const opener = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open'
-    try { spawn(opener, [link], { stdio: 'ignore', detached: true, shell: process.platform === 'win32' }).unref() } catch { /* open it by hand */ }
+    try { openBrowser(link) } catch { /* open it by hand */ }
   }
 })

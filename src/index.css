@@ -859,6 +859,10 @@ a.primary { background: var(--accent); color: var(--accent-ink); }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; }
 .sheet-head strong { font-size: 18px; letter-spacing: -0.02em; }
 .sheet .fine { margin: 0; }
+.rate-sheet form { display: grid; gap: 12px; }
+.rate-sheet h2 { margin: 0; font-size: 22px; letter-spacing: -0.03em; }
+.rate-sheet .star-picker { flex-wrap: wrap; }
+.rate-sheet .star-picker svg { width: 36px; height: 36px; }
 .fine-link { color: var(--accent); font-size: 14px; font-weight: 650; }
 
 /* ── Color picker ─────────────────────────────────────────────────────── */

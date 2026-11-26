@@ -22,11 +22,16 @@ const out = path.join(root, '.test-build')
 const PORT = Number(process.env.PHONECAM_TEST_PORT || 8787)
 const MEETING_PORT = Number(process.env.PHONECAM_TEST_MEETING_PORT || 8790)
 const BASE = `http://127.0.0.1:${PORT}`
-const bin = (name) => path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? `${name}.cmd` : name)
+// Node on Windows refuses to spawn the .cmd shims (EINVAL). Call the JS entry with this Node.
+const tool = (pkg, script) => [process.execPath, path.join(root, 'node_modules', pkg, script)]
+const vite = tool('vite', 'bin/vite.js')
+const wrangler = tool('wrangler', 'bin/wrangler.js')
 
 function run(command, args, env = {}) {
-  const result = spawnSync(command, args, { cwd: root, stdio: 'inherit', env: { ...process.env, ...env } })
-  if (result.status !== 0) throw new Error(`${path.basename(command)} ${args.join(' ')} failed`)
+  const cmd = Array.isArray(command) ? command[0] : command
+  const prefix = Array.isArray(command) ? command.slice(1) : []
+  const result = spawnSync(cmd, [...prefix, ...args], { cwd: root, stdio: 'inherit', env: { ...process.env, ...env }, windowsHide: true })
+  if (result.status !== 0) throw new Error(`${path.basename(cmd)} ${[...prefix, ...args].join(' ')} failed`)
 }
 
 const testEnv = {
@@ -38,7 +43,7 @@ const testEnv = {
 
 console.log('\n▸ Building the test copy into .test-build/')
 fs.rmSync(out, { recursive: true, force: true })
-run(bin('vite'), ['build', '--outDir', '.test-build/site', '--emptyOutDir', '--logLevel', 'warn'], testEnv)
+run(vite, ['build', '--outDir', '.test-build/site', '--emptyOutDir', '--logLevel', 'warn'], testEnv)
 run(process.execPath, ['scripts/build-pages.mjs', '.test-build/site'], testEnv)
 run(process.execPath, ['scripts/build-extension.mjs'], { ...testEnv, PHONECAM_EXT_OUT: '.test-build/extension' })
 // Test-only pages served by the local Worker: an attacker page that speaks PeerJS directly.
@@ -47,10 +52,10 @@ fs.copyFileSync(path.join(root, 'tests/e2e/fixtures/attacker.html'), path.join(o
 
 console.log('\n▸ Preparing the local ratings database')
 const config = ['--config', 'tests/e2e/wrangler.test.toml', '--persist-to', '.test-build/state']
-run(bin('wrangler'), ['d1', 'execute', 'phonecam', '--local', '--file', 'worker/schema.sql', ...config], testEnv)
+run(wrangler, ['d1', 'execute', 'phonecam', '--local', '--file', 'worker/schema.sql', ...config], testEnv)
 
 console.log(`\n▸ Starting the Worker on ${BASE}`)
-const dev = spawn(bin('wrangler'), ['dev', '--port', String(PORT), '--ip', '127.0.0.1', ...config], {
+const dev = spawn(wrangler[0], [...wrangler.slice(1), 'dev', '--port', String(PORT), '--ip', '127.0.0.1', ...config], {
   cwd: root,
   env: { ...process.env, ...testEnv },
   stdio: ['ignore', 'pipe', 'pipe'],

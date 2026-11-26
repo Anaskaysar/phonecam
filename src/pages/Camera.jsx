@@ -7,6 +7,7 @@ import { readStorage, writeStorage } from '../lib/room.js'
 import { forgetPairing, loadPairings, parsePairToken, savePairing } from '../lib/pairing.js'
 import { startPhoneLink } from '../lib/phone-link.js'
 import { installHint, isStandalone, platform, useInstallPrompt } from '../lib/platform.js'
+import RatePrompt, { rateAskedToday } from '../components/RatePrompt.jsx'
 
 const QUALITIES = ['480', '720', '1080']
 const SOURCES = { ext: 'Browser extension', share: 'Receiver page', obs: 'OBS' }
@@ -37,6 +38,7 @@ export default function Camera() {
   const [awake, setAwake] = useState(true)
   const [status, setStatus] = useState({ text: 'Starting camera…', state: '' })
   const [notice, setNotice] = useState('')
+  const [rateOpen, setRateOpen] = useState(false)
 
   const awakeTimer = useRef(null)
   const videoRef = useRef(null)
@@ -47,6 +49,7 @@ export default function Camera() {
   const qualityRef = useRef(quality)
   const micRef = useRef(mic)
   const facingRef = useRef(facing)
+  const wentLive = useRef(false)
   const api = useRef({})
   const { canInstall, install } = useInstallPrompt()
 
@@ -189,6 +192,7 @@ export default function Camera() {
     setNotice('')
     writeStorage('pc.quality', quality)
     writeStorage('pc.mic', mic)
+    wentLive.current = false
     streamingRef.current = true
     setStreaming(true)
     try {
@@ -205,7 +209,10 @@ export default function Camera() {
       key: pairing.key,
       getStream: () => streamRef.current,
       onStatus: ({ text, state }) => setStatus({ text, state }),
-      onLive: (pc) => { void tuneBitrate(pc, qualityRef.current) },
+      onLive: (pc) => {
+        wentLive.current = true
+        void tuneBitrate(pc, qualityRef.current)
+      },
       onKey: (key) => {
         setPairings(savePairing({ ...pairing, key, mode: 'session' }))
       },
@@ -304,7 +311,16 @@ export default function Camera() {
             type="button"
             className={streaming ? 'go stop' : 'go'}
             disabled={!streaming && !active}
-            onClick={() => (streaming ? stop() : start())}
+            onClick={() => {
+              if (!streaming) {
+                start()
+                return
+              }
+              const ask = wentLive.current && !rateAskedToday()
+              stop()
+              setSheetOpen(false)
+              if (ask) setRateOpen(true)
+            }}
           >
             {streaming ? 'Stop' : 'Start streaming'}
           </button>
@@ -379,6 +395,8 @@ export default function Camera() {
           </section>
         </div>
       ) : null}
+
+      {rateOpen ? <RatePrompt onClose={() => setRateOpen(false)} /> : null}
     </main>
   )
 }

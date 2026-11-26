@@ -232,6 +232,12 @@ export default function Home() {
         </div>
       </header>
 
+{/* Visitor stats */}
+<section className="lp-section" aria-labelledby="visitors">
+  <h2 id="visitors" className="lp-title">Visitor Stats</h2>
+  <VisitCounter />
+</section>
+
       <section className="lp-section" aria-labelledby="how">
         <p className="lp-label">How it works</p>
         <h2 id="how" className="lp-title anchor">Three steps. Under two minutes.</h2>

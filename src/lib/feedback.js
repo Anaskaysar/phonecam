@@ -21,7 +21,7 @@ export async function sendFeedback({ rating, comment, name, publicOk, website })
     })
     const data = await response.json().catch(() => ({}))
     if (response.ok) return { ok: true }
-    return { ok: false, message: data.error || 'Could not send your rating. Try again later.' }
+    return { ok: false, status: response.status, message: data.error || 'Could not send your rating. Try again later.' }
   } catch {
     return { ok: false, message: 'Could not reach PhoneCam. Check your connection and try again.' }
   }
